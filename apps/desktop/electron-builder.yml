@@ -29,6 +29,11 @@ extraResources:
   - from: ../../THIRD_PARTY_NOTICES.md
     to: THIRD_PARTY_NOTICES.md
 
+# The static AppImage runtime: no libfuse2 needed, which Ubuntu 22.04+ and
+# recent Fedora don't install by default.
+toolsets:
+  appimage: "1.0.3"
+
 # Hardened Electron: no running as plain Node, no NODE_OPTIONS or inspector
 # flags, and the app only loads from its own asar. Embedded asar integrity is
 # enforced on macOS and Windows only; on Linux the packages' file ownership

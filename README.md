@@ -121,6 +121,13 @@ copy ships. A future release with a distinct baseline build would be shipped
 automatically. The AppImage and .deb can be built on macOS; rpm and Flatpak
 need Linux.
 
+The AppImage uses the static runtime, so it doesn't need `libfuse2`. On
+Ubuntu 24.04+, though, AppArmor blocks the user namespaces Chromium's
+sandbox needs, and an AppImage can't carry the setuid fallback. Expect the
+AppImage to refuse to start there. The .deb is fine there because it
+installs an AppArmor profile. Point Ubuntu users to the .deb or the
+Flatpak.
+
 Pushing a `vX.Y.Z` tag that matches `apps/desktop/package.json` runs
 `.github/workflows/release.yml`. It builds every format for x64 and arm64
 into a draft GitHub release with checksums.

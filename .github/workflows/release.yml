@@ -83,6 +83,10 @@ jobs:
         run: |
           pnpm exec electron-vite build
           pnpm exec electron-builder --linux AppImage deb rpm --${{ matrix.arch }} --publish never
+      # Ubuntu 24.04 blocks the unprivileged user namespaces bubblewrap
+      # (flatpak-builder's sandbox) uses; allow them on this throwaway runner.
+      - name: Allow bubblewrap's sandbox
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
       - name: Flatpak
         working-directory: apps/desktop
         run: flatpak/build.sh ${{ matrix.flatpak_arch }}
