@@ -4,7 +4,7 @@ import ApprovalCard from "@/components/bui/ApprovalCard";
 import ChatComposer from "@/components/bui/ChatComposer";
 import CodeBlock from "@/components/bui/CodeBlock";
 import ContextCards from "@/components/bui/ContextCards";
-import DiffTable from "@/components/bui/DiffTable";
+import DiffTable, { ChangeTable } from "@/components/bui/DiffTable";
 import FilterTable from "@/components/bui/FilterTable";
 import FineTuneCard from "@/components/bui/FineTuneCard";
 import Flowchart from "@/components/bui/Flowchart";
@@ -38,6 +38,21 @@ const ENTRIES: Array<[title: string, Component: ComponentType]> = [
   ["Recommendation Card", RecommendationCard],
   ["Context Cards", ContextCards],
   ["Diff Table", DiffTable],
+  [
+    "Change Table",
+    () => (
+      <ChangeTable
+        title="What this changes: 1 new, 1 updated, 2 removed"
+        columns={["Package", "Change", "Version"]}
+        rows={[
+          { key: "a", kind: "remove", name: "libreoffice-core", tag: "Removed", detail: "4:24.2.7-0ubuntu0.24.04.1" },
+          { key: "b", kind: "remove", name: "libreoffice-writer", tag: "Removed", detail: "4:24.2.7-0ubuntu0.24.04.1" },
+          { key: "c", kind: "add", name: "vlc", tag: "New", detail: "3.0.20-3build6" },
+          { key: "d", kind: "update", name: "firefox", tag: "Update", detail: "128.0 → 129.0" },
+        ]}
+      />
+    ),
+  ],
   ["Records Table", RecordsTable],
   ["Filter Table", FilterTable],
   ["Sidebar Nav", SidebarNav],

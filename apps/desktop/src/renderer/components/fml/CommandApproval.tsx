@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/atoms/Button";
 import { ValuePill, type ValuePillTone } from "@/components/atoms/ValuePill";
 import CodeBlock from "@/components/bui/CodeBlock";
+import { ChangeTable, type ChangeRow } from "@/components/bui/DiffTable";
 import { parseUnifiedDiff } from "@/lib/diff";
 import type { ApprovalDecision, PendingApproval, RiskLevel } from "../../../shared/approvals";
 
@@ -79,6 +80,7 @@ export function CommandApproval({
             ))}
           </ul>
         )}
+        {approval.packages && approval.packages.length > 0 && <PackageChanges changes={approval.packages} />}
         {detail && (
           <div>
             <button
@@ -118,4 +120,20 @@ export function CommandApproval({
       </div>
     </div>
   );
+}
+
+const TAG: Record<ChangeRow["kind"], string> = { add: "New", remove: "Removed", update: "Update" };
+
+/** What the package manager says will change, from its dry run. */
+function PackageChanges({ changes }: { changes: NonNullable<PendingApproval["packages"]> }) {
+  // Removals first: they're what the person most needs to see.
+  const order = { remove: 0, add: 1, update: 2 } as const;
+  const rows: ChangeRow[] = [...changes]
+    .sort((a, b) => order[a.kind] - order[b.kind])
+    .map((c, i) => ({ key: `${c.kind}-${c.name}-${i}`, kind: c.kind, name: c.name, tag: TAG[c.kind], detail: c.detail }));
+  const removed = changes.filter((c) => c.kind === "remove").length;
+  const added = changes.filter((c) => c.kind === "add").length;
+  const updated = changes.length - removed - added;
+  const parts = [added && `${added} new`, updated && `${updated} updated`, removed && `${removed} removed`].filter(Boolean).join(", ");
+  return <ChangeTable title={`What this changes: ${parts}`} rows={rows} columns={["Package", "Change", "Version"]} limit={6} />;
 }

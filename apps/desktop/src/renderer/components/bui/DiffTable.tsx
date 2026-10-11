@@ -252,3 +252,92 @@ export default function DiffTable({
     </div>
   );
 }
+
+/* ─────────────────────────────────────────────────────────
+ * CHANGE TABLE
+ * The Diff Table's look for a fixed list of proposed changes:
+ * removals tinted red and struck through, additions tinted
+ * green, updates neutral with old → new.
+ * ───────────────────────────────────────────────────────── */
+
+export type ChangeRow = {
+  key: string;
+  kind: "add" | "remove" | "update";
+  name: string;
+  /** Category chip, e.g. "New", "Removed", "Update". */
+  tag: string;
+  detail: string;
+};
+
+const TAG_DOT: Record<ChangeRow["kind"], string> = { add: "bg-green", remove: "bg-red", update: "bg-accent" };
+
+export function ChangeTable({ title, rows, columns, limit = 8 }: { title: string; rows: ChangeRow[]; columns: [string, string, string]; limit?: number }) {
+  const [all, setAll] = useState(false);
+  const shown = all ? rows : rows.slice(0, limit);
+  return (
+    <div className="w-full overflow-hidden rounded-card bg-surface shadow-hairline">
+      <div className="primitive-card-bar flex items-center justify-between border-b border-line">
+        <span className="text-[12.5px] font-medium text-ink">{title}</span>
+        <span className="text-[11px] text-ink-3 tabular-nums">{rows.length}</span>
+      </div>
+      <table className="w-full table-fixed border-collapse text-left">
+        <colgroup>
+          <col className="w-[38%]" />
+          <col className="w-[24%]" />
+          <col className="w-[38%]" />
+        </colgroup>
+        <thead>
+          <tr className="border-b border-line">
+            {columns.map((h) => (
+              <th key={h} className="primitive-table-cell text-[12px] font-medium text-ink-3">
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {shown.map((row) => {
+            const tone = row.kind === "remove" ? "var(--red)" : row.kind === "add" ? "var(--green)" : "var(--ink)";
+            return (
+              <tr
+                key={row.key}
+                className="border-b border-line last:border-0"
+                style={{ background: row.kind === "remove" ? "var(--red-tint)" : row.kind === "add" ? "var(--green-tint)" : undefined }}
+              >
+                <td className="primitive-table-cell truncate font-mono text-[12px] font-medium" style={{ color: tone }} title={row.name}>
+                  {row.name}
+                </td>
+                <td className="primitive-table-cell">
+                  <span className="inline-flex h-5.5 items-center gap-1.5 rounded-full bg-surface px-2 text-[11.5px] font-medium shadow-hairline">
+                    <span className={`size-1.5 rounded-full ${TAG_DOT[row.kind]}`} />
+                    <span className="text-ink-2">{row.tag}</span>
+                  </span>
+                </td>
+                <td
+                  className="primitive-table-cell truncate font-mono text-[11.5px]"
+                  style={{
+                    color: row.kind === "update" ? "var(--ink-2)" : tone,
+                    textDecorationLine: row.kind === "remove" ? "line-through" : "none",
+                    textDecorationColor: "color-mix(in srgb, var(--red) 50%, transparent)",
+                  }}
+                  title={row.detail}
+                >
+                  {row.detail}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      {rows.length > limit && (
+        <button
+          type="button"
+          onClick={() => setAll((v) => !v)}
+          className="w-full border-t border-line px-3 py-1.5 text-left text-[12px] text-ink-3 transition-colors duration-100 hover:bg-hover hover:text-ink-2"
+        >
+          {all ? "Show fewer" : `Show all ${rows.length}`}
+        </button>
+      )}
+    </div>
+  );
+}

@@ -133,6 +133,30 @@ describe("ApprovalBroker", () => {
   });
 });
 
+describe("package previews", () => {
+  it("adds the dry run to the card and raises the risk when it removes packages", async () => {
+    const shown: PendingApproval[] = [];
+    const broker = new ApprovalBroker({
+      reply: async () => undefined,
+      explanationFor: () => null,
+      show: (a) => shown.push(a),
+      hide: () => undefined,
+      audit: () => undefined,
+      home: "/home/ana",
+      policy: () => ({ home: "/home/ana", cwd: "/home/ana" }),
+      worktree: () => "/",
+      alwaysAsk: () => false,
+      previewPackages: async () =>
+        Array.from({ length: 6 }, (_, i) => ({ kind: "remove" as const, name: `lib${i}`, detail: "1.0" })),
+    });
+    await broker.onAsked(bash("p1", "apt remove python3", ["apt remove *"]));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(shown).toHaveLength(2);
+    expect(shown[1]).toMatchObject({ id: "p1", risk: { level: "high", reasons: ["Also removes 6 packages", "Removes software"] }, canAllowSimilar: false });
+    expect(shown[1]!.packages).toHaveLength(6);
+  });
+});
+
 describe("isBlocked", () => {
   it.each([
     ["rm -rf /", true],

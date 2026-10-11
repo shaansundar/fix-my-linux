@@ -1,5 +1,6 @@
 import type { ApprovalDecision, ApprovalKind, AuditDecision, PendingApproval, Risk, RiskLevel } from "../../shared/approvals";
 import { isAbsolute, join } from "node:path";
+import type { Preview } from "./packages";
 import { evaluateCommand, evaluatePathTool, type PolicyContext, type Verdict } from "./policy";
 import { scoreCommand, scoreDirectories, scoreEdit } from "./risk";
 
@@ -31,6 +32,8 @@ export type BrokerDeps = {
   worktree(): string;
   /** Settings: when true, never auto-approve "similar" requests. */
   alwaysAsk(): boolean;
+  /** Dry-runs package commands for the card; omitted in tests that don't need it. */
+  previewPackages?: Preview;
   now?(): number;
 };
 
@@ -111,6 +114,25 @@ export class ApprovalBroker {
     }
 
     this.pending.set(req.id, { approval, similarKey, req });
+    this.deps.show(approval);
+    if (approval.kind === "command" && approval.command && this.deps.previewPackages) {
+      void this.attachPackages(req.id, approval.command);
+    }
+  }
+
+  /** Adds the package manager's dry run to a pending card, and raises the risk if it removes things. */
+  private async attachPackages(id: string, command: string): Promise<void> {
+    const changes = await this.deps.previewPackages!(command).catch(() => null);
+    const entry = this.pending.get(id);
+    if (!entry || !changes || changes.length === 0) return;
+    const removed = changes.filter((c) => c.kind === "remove").length;
+    let risk = entry.approval.risk;
+    if (removed > 0) {
+      const reason = `Also removes ${removed} package${removed === 1 ? "" : "s"}`;
+      risk = { level: removed >= 5 ? "high" : risk.level === "low" ? "medium" : risk.level, reasons: [reason, ...risk.reasons] };
+    }
+    const approval = { ...entry.approval, packages: changes, risk, canAllowSimilar: entry.approval.canAllowSimilar && removed === 0 };
+    this.pending.set(id, { ...entry, approval });
     this.deps.show(approval);
   }
 

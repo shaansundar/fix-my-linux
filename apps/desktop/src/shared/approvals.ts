@@ -5,6 +5,9 @@ export type Risk = { level: RiskLevel; reasons: string[] };
 
 export type ApprovalKind = "command" | "edit" | "folder" | "web" | "other";
 
+/** One package a command would add, remove or update (from the package manager's dry run). */
+export type PackageChange = { kind: "add" | "remove" | "update"; name: string; detail: string };
+
 export type PendingApproval = {
   id: string;
   sessionID: string;
@@ -17,6 +20,8 @@ export type PendingApproval = {
   directories?: string[];
   url?: string;
   risk: Risk;
+  /** What the package manager says this will change, once the dry run finishes. */
+  packages?: PackageChange[];
   /** "Allow similar for this chat" is offered only for low and medium risk. */
   canAllowSimilar: boolean;
   createdAt: number;

@@ -15,6 +15,7 @@ import { ModelRelay, type Upstream } from "./relay";
 import { ApprovedSudo, AskpassServer, elevatedCommands, ProcFs, PsInspector, sudoShim } from "./safety/askpass";
 import { AuditLog } from "./safety/audit";
 import { ApprovalBroker, type PermissionRequest } from "./safety/broker";
+import { previewPackages } from "./safety/packages";
 
 export type EngineMode =
   /** Production: our backend proxies Zen and serves the catalog. */
@@ -97,6 +98,7 @@ export class Engine {
       policy: () => ({ home: deps.home, cwd: deps.home, appData: deps.dataDir }),
       worktree: () => this.worktree,
       alwaysAsk: () => deps.alwaysAsk(),
+      previewPackages: process.platform === "linux" ? previewPackages : undefined,
     });
   }
 
