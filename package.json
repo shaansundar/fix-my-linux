@@ -1,6 +1,7 @@
 {
   "name": "fix-my-linux",
   "private": true,
+  "type": "module",
   "packageManager": "pnpm@10.29.2",
   "engines": {
     "node": ">=22"

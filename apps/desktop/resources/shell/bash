@@ -1,0 +1,51 @@
+#!/bin/bash
+# Fix My Linux shell wrapper.
+#
+# opencode runs every bash tool command through this file (config "shell"),
+# invoked as `bash -c <command>`. It is named "bash" so opencode treats it as
+# bash. Before handing off to the real bash it:
+#   - removes the app's private variables (server password, inline config),
+#   - restores the user's real XDG directories,
+#   - routes sudo through the in-app password prompt (sudo -A + askpass),
+#   - in the Flatpak build, runs the command on the host instead of the sandbox.
+
+shell_dir="${FML_SHELL_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
+flatpak="${FML_FLATPAK:-0}"
+
+for key in XDG_CONFIG_HOME XDG_DATA_HOME XDG_CACHE_HOME XDG_STATE_HOME; do
+  real="FML_REAL_${key}"
+  if [ -n "${!real}" ]; then
+    export "${key}=${!real}"
+  fi
+  unset "$real"
+done
+
+while IFS= read -r name; do
+  case "$name" in
+    OPENCODE_* | ELECTRON_* | CHROME_* ) unset "$name" ;;
+  esac
+done < <(compgen -e)
+unset FML_SHELL_DIR FML_FLATPAK
+
+export PATH="${shell_dir}/bin:${PATH}"
+export SUDO_ASKPASS="${shell_dir}/bin/fml-askpass"
+# Non-interactive defaults so commands never stop to wait for a keypress.
+export DEBIAN_FRONTEND=noninteractive
+export SYSTEMD_PAGER=
+export PAGER=cat
+export GIT_PAGER=cat
+
+if [ "$flatpak" = "1" ]; then
+  env_args=()
+  while IFS= read -r name; do
+    case "$name" in
+      PATH | HOME | USER | LANG | LC_* | TERM | DISPLAY | WAYLAND_DISPLAY | XDG_* | DBUS_SESSION_BUS_ADDRESS | \
+        SUDO_ASKPASS | FML_ASKPASS_SOCKET | DEBIAN_FRONTEND | SYSTEMD_PAGER | PAGER | GIT_PAGER)
+        env_args+=("--env=${name}=${!name}")
+        ;;
+    esac
+  done < <(compgen -e)
+  exec flatpak-spawn --host --watch-bus "${env_args[@]}" /bin/bash "$@"
+fi
+
+exec /bin/bash "$@"

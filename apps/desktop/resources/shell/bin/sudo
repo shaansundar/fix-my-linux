@@ -1,0 +1,10 @@
+#!/bin/bash
+# Fix My Linux sudo shim: always use the in-app password prompt (askpass),
+# never a terminal prompt the user can't see.
+for candidate in /usr/bin/sudo /bin/sudo /usr/local/bin/sudo; do
+  if [ -x "$candidate" ]; then
+    exec "$candidate" -A "$@"
+  fi
+done
+echo "sudo is not installed on this system." >&2
+exit 127
