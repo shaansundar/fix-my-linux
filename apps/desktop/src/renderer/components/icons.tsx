@@ -31,20 +31,40 @@ import {
 
 export type IconProps = LucideProps;
 
+/**
+ * Central's "Small" glyphs sit inside a 24px box drawn at roughly 3/4 scale.
+ * Keep the requested footprint but draw the Lucide glyph smaller to match.
+ */
+function small(Icon: LucideIcon, name: string) {
+  const Small = ({ size = 24, className = "", ...rest }: LucideProps) => {
+    const box = typeof size === "number" ? size : Number.parseFloat(size);
+    return (
+      <span
+        className={`inline-flex shrink-0 items-center justify-center ${className}`}
+        style={{ width: box, height: box }}
+      >
+        <Icon size={Math.round(box * 0.75)} {...rest} />
+      </span>
+    );
+  };
+  Small.displayName = name;
+  return Small;
+}
+
 /* Central Icons names (round-outlined, radius 2, stroke 2). */
 export const IconHome: LucideIcon = House;
 export const IconUserAdd: LucideIcon = UserPlus;
-export const IconCheckmark1Small: LucideIcon = Check;
+export const IconCheckmark1Small = small(Check, "IconCheckmark1Small");
 export const IconPlusMedium: LucideIcon = Plus;
 export const IconSettingsGear1: LucideIcon = Settings;
 export const IconArrowBoxLeft: LucideIcon = LogOut;
 /** Workspace logo slot; the upstream demo used a popsicle. */
 export const IconPopsicle2: LucideIcon = SquareTerminal;
-export const IconChevronDownSmall: LucideIcon = ChevronDown;
+export const IconChevronDownSmall = small(ChevronDown, "IconChevronDownSmall");
 export const IconSidebarLeftArrow: LucideIcon = PanelLeft;
 export const IconEditBig: LucideIcon = SquarePen;
 export const IconMagnifyingGlass: LucideIcon = Search;
-export const IconCrossSmall: LucideIcon = X;
+export const IconCrossSmall = small(X, "IconCrossSmall");
 
 /* iconoir names. */
 export { ArrowUp, Check };

@@ -6,18 +6,20 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { IconArrowBoxLeft } from "@central-icons-react/round-outlined-radius-2-stroke-2/IconArrowBoxLeft";
-import { IconCheckmark1Small } from "@central-icons-react/round-outlined-radius-2-stroke-2/IconCheckmark1Small";
-import { IconChevronDownSmall } from "@central-icons-react/round-outlined-radius-2-stroke-2/IconChevronDownSmall";
-import { IconCrossSmall } from "@central-icons-react/round-outlined-radius-2-stroke-2/IconCrossSmall";
-import { IconEditBig } from "@central-icons-react/round-outlined-radius-2-stroke-2/IconEditBig";
-import { IconHome } from "@central-icons-react/round-outlined-radius-2-stroke-2/IconHome";
-import { IconMagnifyingGlass } from "@central-icons-react/round-outlined-radius-2-stroke-2/IconMagnifyingGlass";
-import { IconPlusMedium } from "@central-icons-react/round-outlined-radius-2-stroke-2/IconPlusMedium";
-import { IconPopsicle2 } from "@central-icons-react/round-outlined-radius-2-stroke-2/IconPopsicle2";
-import { IconSettingsGear1 } from "@central-icons-react/round-outlined-radius-2-stroke-2/IconSettingsGear1";
-import { IconSidebarLeftArrow } from "@central-icons-react/round-outlined-radius-2-stroke-2/IconSidebarLeftArrow";
-import { IconUserAdd } from "@central-icons-react/round-outlined-radius-2-stroke-2/IconUserAdd";
+import {
+  IconArrowBoxLeft,
+  IconCheckmark1Small,
+  IconChevronDownSmall,
+  IconCrossSmall,
+  IconEditBig,
+  IconHome,
+  IconMagnifyingGlass,
+  IconPlusMedium,
+  IconPopsicle2,
+  IconSettingsGear1,
+  IconSidebarLeftArrow,
+  IconUserAdd,
+} from "@/components/icons";
 import GlideMenu from "@/components/primitives/GlideMenu";
 
 /* ─────────────────────────────────────────────────────────

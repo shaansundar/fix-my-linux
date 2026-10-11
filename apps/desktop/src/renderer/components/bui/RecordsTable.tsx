@@ -6,6 +6,7 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import GlideMenu from "@/components/primitives/GlideMenu";
+import "./RecordsTable.css";
 
 /* ─────────────────────────────────────────────────────────
  * RECORDS TABLE — an AI spreadsheet grid. Columns are

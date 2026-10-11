@@ -359,6 +359,14 @@ textarea:focus-visible {
   height: 8px;
 }
 
+/* ── Agent cursor (Records Table, Agent Screen) ─────────── */
+
+.agent-cursor {
+  pointer-events: none;
+  filter: drop-shadow(0 1px 1.5px #00000059);
+  position: absolute;
+}
+
 /* ── Streaming text ──────────────────────────────────────── */
 
 .stream-tail {

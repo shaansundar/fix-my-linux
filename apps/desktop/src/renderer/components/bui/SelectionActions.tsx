@@ -23,7 +23,7 @@ import {
   Spark,
   TextBox,
   Xmark,
-} from "iconoir-react";
+} from "@/components/icons";
 import { Button } from "@/components/atoms/Button";
 import { Shimmer } from "@/components/atoms/Shimmer";
 import { StreamText } from "@/components/atoms/StreamText";
