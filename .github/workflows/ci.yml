@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  server:
+    name: Server (Go)
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: fml
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      FML_TEST_DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/fml?sslmode=disable
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version: "1.26.x"
+          cache-dependency-path: |
+            server/go.sum
+            tools/askpass/go.sum
+      - name: gofmt
+        run: test -z "$(gofmt -l server tools/askpass)" || { gofmt -l server tools/askpass; exit 1; }
+      - name: Test (race, coverage)
+        working-directory: server
+        run: |
+          go test -race -coverprofile=cover.out ./...
+          go tool cover -func=cover.out | tail -1
+      - name: Coverage at least 80%
+        working-directory: server
+        run: |
+          total=$(go tool cover -func=cover.out | awk '/^total:/ { sub("%", "", $3); print $3 }')
+          awk -v t="$total" 'BEGIN { exit !(t >= 80) }' || { echo "coverage ${total}% is below 80%"; exit 1; }
+      - name: go vet
+        working-directory: server
+        run: go vet ./...
+      - name: staticcheck
+        working-directory: server
+        run: go run honnef.co/go/tools/cmd/staticcheck@v0.8.1 ./...
+      - name: gosec
+        working-directory: server
+        run: go run github.com/securego/gosec/v2/cmd/gosec@v2.29.0 -quiet ./...
+      - name: askpass helper
+        working-directory: tools/askpass
+        run: go test -race ./... && go vet ./...
+
+  desktop:
+    name: Desktop (typecheck, unit, integration, E2E)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: actions/setup-go@v6
+        with:
+          go-version: "1.26.x"
+          cache-dependency-path: |
+            server/go.sum
+            tools/askpass/go.sum
+      - run: pnpm install --frozen-lockfile
+      - name: Fetch opencode and build the askpass helper
+        run: |
+          pnpm fetch:opencode --host
+          pnpm build:helpers --host
+      - name: Typecheck
+        run: pnpm --filter @fml/desktop typecheck
+      - name: Unit tests
+        run: pnpm --filter @fml/desktop test
+      - name: Integration tests (real opencode)
+        run: pnpm --filter @fml/desktop test:integration
+      # Ubuntu 24.04 blocks the unprivileged user namespaces Chromium's
+      # sandbox uses; allow them on this throwaway runner.
+      - name: Allow Chromium's sandbox
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+      - name: E2E (Electron under Xvfb)
+        run: xvfb-run -a pnpm --filter @fml/desktop test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-results
+          path: apps/desktop/test-results/
+          retention-days: 7

@@ -1,0 +1,8 @@
+# Only what the build needs; tests and fixtures stay out of the image context.
+*
+!go.mod
+!go.sum
+!cmd
+!internal
+**/*_test.go
+**/testdata

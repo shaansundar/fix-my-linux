@@ -1,0 +1,78 @@
+name: Release
+
+# Tag vX.Y.Z to build every Linux package for both architectures into a
+# draft GitHub release. Publishing the draft is a manual step.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  draft:
+    name: Draft release
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: Check the tag matches the app version
+        run: |
+          version="$(node -p 'require("./apps/desktop/package.json").version')"
+          test "v${version}" = "${GITHUB_REF_NAME}" || { echo "tag ${GITHUB_REF_NAME} != v${version}"; exit 1; }
+      - name: Create the draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --draft --verify-tag --title "$GITHUB_REF_NAME" --notes ""
+
+  package:
+    name: Packages (${{ matrix.arch }})
+    needs: draft
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            flatpak_arch: x86_64
+            runner: ubuntu-24.04
+          - arch: arm64
+            flatpak_arch: aarch64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: actions/setup-go@v6
+        with:
+          go-version: "1.26.x"
+          cache-dependency-path: tools/askpass/go.sum
+      - name: Install packaging tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rpm flatpak flatpak-builder
+          flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+      - run: pnpm install --frozen-lockfile
+      - name: Fetch opencode and build the askpass helper
+        run: |
+          if [ "${{ matrix.arch }}" = x64 ]; then variants=linux-x64,linux-x64-baseline; else variants=linux-arm64; fi
+          pnpm fetch:opencode --variants "$variants"
+          pnpm build:helpers
+      - name: AppImage, deb, rpm
+        working-directory: apps/desktop
+        run: |
+          pnpm exec electron-vite build
+          pnpm exec electron-builder --linux AppImage deb rpm --${{ matrix.arch }} --publish never
+      - name: Flatpak
+        working-directory: apps/desktop
+        run: flatpak/build.sh ${{ matrix.flatpak_arch }}
+      - name: Checksums
+        working-directory: apps/desktop/release
+        run: sha256sum *.AppImage *.deb *.rpm *.flatpak > SHA256SUMS-${{ matrix.arch }}.txt
+      - name: Upload to the draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        working-directory: apps/desktop/release
+        run: gh release upload "$GITHUB_REF_NAME" --clobber *.AppImage *.deb *.rpm *.flatpak SHA256SUMS-${{ matrix.arch }}.txt
