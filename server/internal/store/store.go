@@ -51,7 +51,9 @@ type Subscription struct {
 	RenewsAt           *time.Time
 	EndsAt             *time.Time
 	CurrentPeriodStart time.Time
-	UpdatedAt          time.Time
+	// Lemon Squeezy's updated_at for the state stored; nil if unknown.
+	LSUpdatedAt *time.Time
+	UpdatedAt   time.Time
 }
 
 type UsageRecord struct {

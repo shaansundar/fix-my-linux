@@ -42,6 +42,8 @@ CREATE TABLE subscriptions (
     renews_at            timestamptz,
     ends_at              timestamptz,
     current_period_start timestamptz NOT NULL,
+    -- Lemon Squeezy's own updated_at; older webhooks never overwrite newer state.
+    ls_updated_at        timestamptz,
     updated_at           timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX subscriptions_user ON subscriptions (user_id, updated_at DESC);

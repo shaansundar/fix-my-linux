@@ -168,6 +168,19 @@ func TestStore(t *testing.T) {
 				}
 			})
 
+			t.Run("an older lemon squeezy update never overwrites a newer one", func(t *testing.T) {
+				s := mk(t)
+				u, _ := s.UpsertUser(ctx, "ana@example.com")
+				newer := time.Date(2026, 11, 10, 0, 0, 0, 0, time.UTC)
+				older := newer.Add(-time.Hour)
+				p := time.Date(2026, 10, 1, 0, 0, 0, 0, time.UTC)
+				_ = s.UpsertSubscription(ctx, Subscription{LSID: "sub_9", UserID: u.ID, Status: "cancelled", CurrentPeriodStart: p, LSUpdatedAt: &newer})
+				_ = s.UpsertSubscription(ctx, Subscription{LSID: "sub_9", UserID: u.ID, Status: "active", LSUpdatedAt: &older})
+				if got, _ := s.SubscriptionByLSID(ctx, "sub_9"); got.Status != "cancelled" {
+					t.Fatalf("status = %s", got.Status)
+				}
+			})
+
 			t.Run("reservations never let spend exceed the budget", func(t *testing.T) {
 				s := mk(t)
 				u, _ := s.UpsertUser(ctx, "ana@example.com")

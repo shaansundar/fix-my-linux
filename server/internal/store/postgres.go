@@ -201,27 +201,30 @@ func (p *Postgres) UpsertSubscription(ctx context.Context, s Subscription) error
 	if s.CurrentPeriodStart.IsZero() {
 		start = nil
 	}
-	_, err := p.pool.Exec(ctx, `INSERT INTO subscriptions (ls_id, user_id, status, customer_id, renews_at, ends_at, current_period_start, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, COALESCE($7, now()), now())
+	_, err := p.pool.Exec(ctx, `INSERT INTO subscriptions (ls_id, user_id, status, customer_id, renews_at, ends_at, current_period_start, ls_updated_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, COALESCE($7, now()), $8, now())
 		ON CONFLICT (ls_id) DO UPDATE SET
 			status = EXCLUDED.status,
 			customer_id = EXCLUDED.customer_id,
 			renews_at = EXCLUDED.renews_at,
 			ends_at = EXCLUDED.ends_at,
 			current_period_start = COALESCE($7, subscriptions.current_period_start),
-			updated_at = now()`,
-		s.LSID, s.UserID, s.Status, s.CustomerID, s.RenewsAt, s.EndsAt, start)
+			ls_updated_at = COALESCE(EXCLUDED.ls_updated_at, subscriptions.ls_updated_at),
+			updated_at = now()
+		WHERE subscriptions.ls_updated_at IS NULL OR EXCLUDED.ls_updated_at IS NULL
+			OR EXCLUDED.ls_updated_at >= subscriptions.ls_updated_at`,
+		s.LSID, s.UserID, s.Status, s.CustomerID, s.RenewsAt, s.EndsAt, start, s.LSUpdatedAt)
 	if err != nil {
 		return fmt.Errorf("failed to save subscription: %w", err)
 	}
 	return nil
 }
 
-const subColumns = `ls_id, user_id, status, customer_id, renews_at, ends_at, current_period_start, updated_at`
+const subColumns = `ls_id, user_id, status, customer_id, renews_at, ends_at, current_period_start, ls_updated_at, updated_at`
 
 func scanSub(row pgx.Row) (Subscription, error) {
 	var s Subscription
-	if err := row.Scan(&s.LSID, &s.UserID, &s.Status, &s.CustomerID, &s.RenewsAt, &s.EndsAt, &s.CurrentPeriodStart, &s.UpdatedAt); err != nil {
+	if err := row.Scan(&s.LSID, &s.UserID, &s.Status, &s.CustomerID, &s.RenewsAt, &s.EndsAt, &s.CurrentPeriodStart, &s.LSUpdatedAt, &s.UpdatedAt); err != nil {
 		return Subscription{}, notFound(err)
 	}
 	return s, nil

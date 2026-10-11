@@ -196,8 +196,13 @@ func (m *Memory) TrialFor(_ context.Context, userID string) (Trial, error) {
 func (m *Memory) UpsertSubscription(_ context.Context, s Subscription) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	if prev, ok := m.subs[s.LSID]; ok && s.CurrentPeriodStart.IsZero() {
-		s.CurrentPeriodStart = prev.CurrentPeriodStart
+	if prev, ok := m.subs[s.LSID]; ok {
+		if prev.LSUpdatedAt != nil && s.LSUpdatedAt != nil && s.LSUpdatedAt.Before(*prev.LSUpdatedAt) {
+			return nil
+		}
+		if s.CurrentPeriodStart.IsZero() {
+			s.CurrentPeriodStart = prev.CurrentPeriodStart
+		}
 	}
 	s.UpdatedAt = m.Now()
 	m.subs[s.LSID] = s
