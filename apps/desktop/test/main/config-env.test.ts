@@ -59,6 +59,7 @@ describe("buildOpencodeEnv", () => {
     configContent: "{}",
     modelsPath: "/data/models.json",
     askpassSocket: "/run/user/1000/fml/askpass.sock",
+    askpassBin: "/app/resources/bin/linux-x64/fml-askpass",
     shellDir: "/app/resources/shell",
     flatpak: false,
   };

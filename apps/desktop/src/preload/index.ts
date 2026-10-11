@@ -41,6 +41,11 @@ const api: FmlApi = {
   notices: {
     onBlocked: (cb) => on(CH.blocked, cb),
   },
+  password: {
+    list: () => ipcRenderer.invoke(CH.passwordList),
+    answer: (id, password) => ipcRenderer.invoke(CH.passwordAnswer, id, password),
+    onChange: (cb) => on(CH.passwordChange, cb),
+  },
 };
 
 contextBridge.exposeInMainWorld("fml", api);

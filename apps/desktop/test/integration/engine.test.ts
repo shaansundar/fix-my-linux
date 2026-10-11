@@ -58,6 +58,7 @@ describe("Engine (real opencode, fake Zen)", () => {
         approvals: (p) => (approvals = p),
         activity: (e) => activity.push(e),
         blocked: (n) => blocked.push(n),
+        passwords: () => undefined,
       },
     });
     await engine.start();

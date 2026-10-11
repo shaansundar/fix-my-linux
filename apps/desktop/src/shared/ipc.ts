@@ -19,6 +19,9 @@ export type BlockedNotice = {
   resetsAt?: string;
 };
 
+/** sudo is waiting for the administrator password. */
+export type PasswordRequest = { id: string; command: string; attempt: number };
+
 export type Unsubscribe = () => void;
 
 export type FmlApi = {
@@ -55,6 +58,12 @@ export type FmlApi = {
   notices: {
     onBlocked(cb: (n: BlockedNotice) => void): Unsubscribe;
   };
+  password: {
+    list(): Promise<PasswordRequest[]>;
+    /** null cancels; the password is never stored. */
+    answer(id: string, password: string | null): Promise<void>;
+    onChange(cb: (pending: PasswordRequest[]) => void): Unsubscribe;
+  };
 };
 
 /** Channel names, so main and preload can't drift apart. */
@@ -78,4 +87,7 @@ export const CH = {
   activityList: "activity:list",
   activityEntry: "activity:entry",
   blocked: "notices:blocked",
+  passwordList: "password:list",
+  passwordAnswer: "password:answer",
+  passwordChange: "password:change",
 } as const;

@@ -117,6 +117,10 @@ export class Supervisor extends EventEmitter<SupervisorEvents> {
     return this.current?.url ?? null;
   }
 
+  get pid(): number | undefined {
+    return this.current?.pid;
+  }
+
   async start(): Promise<string> {
     this.stopping = false;
     const proc = await OpencodeProcess.start(this.options());

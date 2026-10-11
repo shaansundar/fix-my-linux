@@ -59,6 +59,12 @@ export function registerIpc(win: () => BrowserWindow | null, engine: () => Engin
   });
   handle(CH.questionReject, (id) => need().rejectQuestion(str(id, "question")));
 
+  handle(CH.passwordList, () => engine()?.passwords() ?? []);
+  handle(CH.passwordAnswer, (id, password) => {
+    if (password !== null && (typeof password !== "string" || password.length > 1024)) throw new Error("invalid password");
+    engine()?.answerPassword(str(id, "request"), password as string | null);
+  });
+
   handle(CH.modelsList, () => engine()?.models() ?? []);
   handle(CH.activityList, () => engine()?.audit.list() ?? []);
 }

@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 import type { ApprovalDecision, AuditEntry, PendingApproval } from "../../shared/approvals";
-import type { BlockedNotice, EngineState, FmlApi, ModelOption, SessionSummary } from "../../shared/ipc";
+import type { BlockedNotice, EngineState, FmlApi, ModelOption, PasswordRequest, SessionSummary } from "../../shared/ipc";
 import { emptyState, reduce, type ChatState, type OpencodeEvent } from "../../shared/session";
 
 export type View =
@@ -19,6 +19,7 @@ export type AppState = {
   view: View;
   notice: BlockedNotice | null;
   activity: AuditEntry[];
+  passwords: PasswordRequest[];
   /** A message is on its way (between pressing send and the session going busy). */
   sending: boolean;
   error: string | null;
@@ -34,6 +35,7 @@ const initial: AppState = {
   view: { kind: "chat", sessionID: null },
   notice: null,
   activity: [],
+  passwords: [],
   sending: false,
   error: null,
 };
@@ -64,17 +66,19 @@ export function createStore(api: FmlApi) {
 
   const onReady = async () => {
     try {
-      const [sessions, models, approvals, activity] = await Promise.all([
+      const [sessions, models, approvals, activity, passwords] = await Promise.all([
         api.chat.list(),
         api.models.list(),
         api.approvals.list(),
         api.activity.list(),
+        api.password.list(),
       ]);
       set((s) => ({
         sessions,
         models,
         approvals,
         activity,
+        passwords,
         model: s.model && models.some((m) => m.id === s.model) ? s.model : (models.find((m) => m.recommended)?.id ?? models[0]?.id ?? null),
       }));
     } catch (err) {
@@ -100,6 +104,7 @@ export function createStore(api: FmlApi) {
         set((s) => ({ activity: [entry, ...s.activity.filter((a) => a.id !== entry.id)] })),
       );
       api.notices.onBlocked((notice) => set({ notice, sending: false }));
+      api.password.onChange((passwords) => set({ passwords }));
       const engine = await api.engine.state();
       set({ engine });
       if (engine.state === "ready") await onReady();
@@ -161,6 +166,10 @@ export function createStore(api: FmlApi) {
 
     async dismissQuestion(questionID: string) {
       await api.questions.reject(questionID).catch(fail);
+    },
+
+    async answerPassword(id: string, password: string | null) {
+      await api.password.answer(id, password).catch(fail);
     },
 
     setModel(model: string) {

@@ -6,11 +6,13 @@ import { store, useApp } from "@/state/store";
 import { Activity } from "@/screens/Activity";
 import { Chat } from "@/screens/Chat";
 import { Starting } from "@/screens/Starting";
+import { PasswordPrompt } from "@/components/fml/PasswordPrompt";
 
 export function App() {
   const engine = useApp((s) => s.engine);
   const view = useApp((s) => s.view);
   const sessions = useApp((s) => s.sessions);
+  const passwords = useApp((s) => s.passwords);
   const { navigate, newChat } = store().actions;
 
   useEffect(() => {
@@ -47,7 +49,19 @@ export function App() {
         footerLabel="New chat"
         onFooterClick={newChat}
       />
-      <main className="min-w-0 flex-1 bg-canvas">{main}</main>
+      <main className="relative min-w-0 flex-1 bg-canvas">
+        {main}
+        {passwords[0] && (
+          <div className="absolute inset-0 z-40 flex items-end justify-center bg-[color-mix(in_srgb,var(--ink)_12%,transparent)] px-6 pb-24">
+            <div className="w-full max-w-[460px]">
+              <PasswordPrompt
+                request={passwords[0]}
+                onAnswer={(pw) => void store().actions.answerPassword(passwords[0]!.id, pw)}
+              />
+            </div>
+          </div>
+        )}
+      </main>
     </div>
   );
 }

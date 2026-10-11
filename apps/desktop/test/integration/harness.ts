@@ -52,6 +52,7 @@ export async function startHarness(options: { plan?: ModelPlan; logs?: boolean }
     configContent: JSON.stringify(config),
     modelsPath,
     askpassSocket: join(workDir, "askpass.sock"),
+    askpassBin: join(RESOURCES, "bin/darwin-arm64/fml-askpass"),
     shellDir: join(RESOURCES, "shell"),
     flatpak: false,
   });

@@ -3,7 +3,7 @@ import { mkdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { createOpencodeClient, type OpencodeClient } from "@opencode-ai/sdk/v2/client";
 import type { ApprovalDecision, AuditEntry, PendingApproval } from "../shared/approvals";
-import type { BlockedNotice, EngineState, ModelOption, SessionSummary } from "../shared/ipc";
+import type { BlockedNotice, EngineState, ModelOption, PasswordRequest, SessionSummary } from "../shared/ipc";
 import { emptySession, emptyState, explanationFor, hydrate, reduce, type ChatState, type OpencodeEvent, type SessionView } from "../shared/session";
 import { fetchBackendCatalog, fetchPublicCatalog, freePlan, isFree, writeCatalog, type CatalogResponse } from "./catalog";
 import { binaryPath, pickVariant } from "./opencode/binary";
@@ -12,6 +12,7 @@ import { buildOpencodeEnv } from "./opencode/env";
 import { sessionDenyRules } from "./opencode/permissions";
 import { Supervisor } from "./opencode/process";
 import { ModelRelay, type Upstream } from "./relay";
+import { ApprovedSudo, AskpassServer, ProcFs, PsInspector } from "./safety/askpass";
 import { AuditLog } from "./safety/audit";
 import { ApprovalBroker, type PermissionRequest } from "./safety/broker";
 
@@ -38,6 +39,7 @@ export type EngineDeps = {
     approvals(pending: PendingApproval[]): void;
     activity(e: AuditEntry): void;
     blocked(n: BlockedNotice): void;
+    passwords(pending: PasswordRequest[]): void;
   };
   log?(line: string): void;
   cpuinfo?(): Promise<string>;
@@ -70,6 +72,8 @@ export class Engine {
   private state: EngineState = { state: "starting" };
   readonly audit: AuditLog;
   readonly broker: ApprovalBroker;
+  private readonly approvedSudo = new ApprovedSudo();
+  private askpass: AskpassServer | null = null;
 
   constructor(private readonly deps: EngineDeps) {
     this.audit = new AuditLog(join(deps.dataDir, "activity.jsonl"));
@@ -81,7 +85,13 @@ export class Engine {
       explanationFor: (req) => (req.tool ? explanationFor(this.chat, req.sessionID, req.tool.messageID, req.tool.callID) : null),
       show: () => deps.emit.approvals(this.broker.list()),
       hide: () => deps.emit.approvals(this.broker.list()),
-      audit: (e) => this.audit.record(e),
+      audit: (e) => {
+        // A command the person allowed may now ask for the sudo password.
+        if (e.kind === "command" && (e.decision === "approved" || e.decision === "approved-similar")) {
+          this.approvedSudo.add(e.subject);
+        }
+        this.audit.record(e);
+      },
       home: deps.home,
       alwaysAsk: () => deps.alwaysAsk(),
     });
@@ -112,6 +122,20 @@ export class Engine {
       const relayOrigin = await this.relay.start();
 
       const variant = pickVariant(process.platform, process.arch, (await this.deps.cpuinfo?.()) ?? (await readCpuinfo()));
+      const askpassBin = join(this.deps.resourcesDir, "bin", variant, "fml-askpass");
+      this.askpass = new AskpassServer({
+        socketPath: this.deps.askpassSocket,
+        helperPath: askpassBin,
+        rootPid: () => this.supervisor?.pid,
+        approved: (c) => this.approvedSudo.has(c),
+        latestApproved: (ms) => this.approvedSudo.latest(ms),
+        flatpak: this.deps.flatpak,
+        inspector: process.platform === "linux" ? new ProcFs() : new PsInspector(),
+        show: () => this.deps.emit.passwords(this.askpass?.list() ?? []),
+        hide: () => this.deps.emit.passwords(this.askpass?.list() ?? []),
+        log: (l) => this.deps.log?.(l),
+      });
+      await this.askpass.start();
       const password = randomBytes(24).toString("hex");
       const config = buildConfig({
         relayOrigin,
@@ -127,6 +151,7 @@ export class Engine {
         configContent: JSON.stringify(config),
         modelsPath,
         askpassSocket: this.deps.askpassSocket,
+        askpassBin,
         shellDir: join(this.deps.resourcesDir, "shell"),
         flatpak: this.deps.flatpak,
       });
@@ -168,7 +193,17 @@ export class Engine {
     this.supervisor = null;
     await this.relay?.stop();
     this.relay = null;
+    await this.askpass?.stop();
+    this.askpass = null;
     this.client = null;
+  }
+
+  passwords(): PasswordRequest[] {
+    return this.askpass?.list() ?? [];
+  }
+
+  answerPassword(id: string, password: string | null): void {
+    this.askpass?.answer(id, password);
   }
 
   /** Restart opencode, e.g. after the plan changed (new model list). */

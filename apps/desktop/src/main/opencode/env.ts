@@ -9,6 +9,8 @@ export type EnvInput = {
   configContent: string;
   modelsPath: string;
   askpassSocket: string;
+  /** The bundled fml-askpass binary for this machine. */
+  askpassBin: string;
   shellDir: string;
   flatpak: boolean;
 };
@@ -64,6 +66,7 @@ export function buildOpencodeEnv(input: EnvInput): Record<string, string> {
     OPENCODE_ENABLE_QUESTION_TOOL: "1",
 
     FML_ASKPASS_SOCKET: input.askpassSocket,
+    FML_ASKPASS_BIN: input.askpassBin,
     FML_SHELL_DIR: input.shellDir,
     FML_FLATPAK: input.flatpak ? "1" : "0",
   });

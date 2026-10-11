@@ -88,6 +88,7 @@ async function startEngineUnsafe(): Promise<void> {
       approvals: (p) => send(CH.approvalsChange, p),
       activity: (e) => send(CH.activityEntry, e),
       blocked: (n) => send(CH.blocked, n),
+      passwords: (p) => send(CH.passwordChange, p),
     },
     log: (line) => {
       if (!app.isPackaged) console.log(line);

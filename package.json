@@ -11,6 +11,8 @@
     "build": "pnpm --filter @fml/desktop build",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
-    "vendor:bui": "node scripts/vendor-bui.ts"
+    "vendor:bui": "node scripts/vendor-bui.ts",
+    "build:helpers": "node scripts/build-askpass.ts",
+    "fetch:opencode": "node scripts/fetch-opencode.ts"
   }
 }
