@@ -358,8 +358,14 @@ In rough order. Nothing below has been done yet.
 
 ### 1. CI
 
-- [ ] The first push runs `.github/workflows/ci.yml` for the first time.
-  Fix whatever it finds before going further.
+- [ ] Get Actions running. On the first push, every run here failed before
+  starting ("startup_failure"). Other private repositories on the same
+  account fail the same way, so the cause is the account, not these
+  workflows. Check Actions billing and spending limits in GitHub's
+  settings, then re-run CI.
+- [ ] Once CI runs, fix whatever it finds. `.github/workflows/ci.yml` has
+  never run. Until then, run the same checks on the VPS by hand (see
+  [Tests](#tests)).
 
 ### 2. Test on real Linux
 
