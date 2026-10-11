@@ -61,8 +61,11 @@ export const REASK_BASH = [
 
 /** Patterns that are refused outright. */
 export const DENY_BASH = [
-  "rm -rf /", "rm -rf /*", "rm -rf ~", "rm -rf ~/", "rm -rf ~*", "rm -rf $HOME*", "rm -fr /*", "rm -fr ~*",
-  "rm --no-preserve-root*",
+  // Exact forms only: opencode's `*` cannot match a literal asterisk, so
+  // "rm -rf /*" would also block "rm -rf /var/cache/apt/archives/*". Broader
+  // whole-disk and whole-home deletions are caught by the broker (HARD_BLOCK).
+  "rm -rf /", "rm -fr /", "rm -rf ~", "rm -rf ~/", "rm -fr ~", "rm -fr ~/",
+  "rm -rf $HOME", "rm -rf $HOME/", "rm --no-preserve-root*", "rm * --no-preserve-root*",
   "mkfs*", "dd * of=/dev/*", "chmod -R 777 /*", "chown -R * /",
   // A shell reading from a pipe is how `curl ... | sh` runs; each side of a pipe is matched on its own.
   "sh", "bash", "zsh", "sh -s*", "bash -s*", "sh -", "bash -",

@@ -82,6 +82,6 @@ describe("session deny rules", () => {
     const rules = sessionDenyRules();
     expect(rules.every((r) => r.action === "deny")).toBe(true);
     expect(rules).toContainEqual({ permission: "task", pattern: "*", action: "deny" });
-    expect(rules).toContainEqual({ permission: "bash", pattern: "rm -rf /*", action: "deny" });
+    expect(rules).toContainEqual({ permission: "bash", pattern: "rm -rf /", action: "deny" });
   });
 });
