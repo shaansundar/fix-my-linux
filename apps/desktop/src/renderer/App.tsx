@@ -9,6 +9,7 @@ import { Settings } from "@/screens/Settings";
 import { Chat } from "@/screens/Chat";
 import { Starting } from "@/screens/Starting";
 import { PasswordPrompt } from "@/components/fml/PasswordPrompt";
+import { CommandPalette } from "@/components/fml/CommandPalette";
 import { UsageMeter } from "@/components/fml/UsageMeter";
 import { SignIn } from "@/screens/SignIn";
 import { IconArrowBoxLeft } from "@/components/icons";
@@ -78,6 +79,7 @@ export function App() {
         footerLabel="New chat"
         onFooterClick={newChat}
       />
+      <CommandPalette />
       <main className="relative min-w-0 flex-1 bg-canvas">
         {main}
         {passwords[0] && (

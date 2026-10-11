@@ -12,7 +12,11 @@ import GlideMenu from "@/components/primitives/GlideMenu";
  * The field, clear action, and results are directly usable.
  * ───────────────────────────────────────────────────────── */
 
-export type SearchItem = string;
+/** A plain label, or a keyed entry with an optional hint shown on the right. */
+export type SearchItem = string | { key: string; label: string; hint?: string };
+
+const labelOf = (i: SearchItem) => (typeof i === "string" ? i : i.label);
+const keyOf = (i: SearchItem) => (typeof i === "string" ? i : i.key);
 
 export type SearchListLabels = {
   placeholder: string;
@@ -41,19 +45,30 @@ const LABELS: SearchListLabels = {
 export default function SearchList({
   items = ITEMS,
   labels = LABELS,
+  onPick,
+  autoFocus = false,
+  limit = 5,
+  fill = false,
 }: {
   items?: SearchItem[];
   labels?: SearchListLabels;
+  /** Called when a result is chosen (click or Enter); without it, picking fills the query. */
+  onPick?: (item: SearchItem) => void;
+  autoFocus?: boolean;
+  /** How many results show before typing. */
+  limit?: number;
+  fill?: boolean;
   variant?: string;
 } = {}) {
   const [query, setQuery] = useState("");
   const results = query
-    ? items.filter((i) => i.toLowerCase().includes(query.toLowerCase()))
-    : items.slice(0, 5);
+    ? items.filter((i) => labelOf(i).toLowerCase().includes(query.toLowerCase())).slice(0, 12)
+    : items.slice(0, limit);
+  const pick = (item: SearchItem) => (onPick ? onPick(item) : setQuery(labelOf(item)));
   const empty = query.length > 2 && results.length === 0;
 
   return (
-    <div className="flex min-h-[248px] w-full max-w-72 flex-col items-stretch">
+    <div className={`flex ${fill ? "" : "min-h-[248px] max-w-72 "}w-full flex-col items-stretch`}>
       <div className="w-full self-start overflow-hidden rounded-card bg-surface shadow-raised">
         {/* input row */}
         <div className="flex h-10 items-center gap-2 border-b border-line px-3 transition-colors duration-100 hover:bg-hover">
@@ -63,7 +78,14 @@ export default function SearchList({
           </svg>
           <input
             value={query}
+            autoFocus={autoFocus}
             onChange={(event) => setQuery(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && results[0]) {
+                event.preventDefault();
+                pick(results[0]);
+              }
+            }}
             placeholder={labels.placeholder}
             aria-label={labels.ariaLabel}
             className="min-w-0 flex-1 bg-transparent text-[13px] text-ink outline-none placeholder:text-ink-3"
@@ -101,14 +123,15 @@ export default function SearchList({
             <GlideMenu className="flex flex-col gap-px" highlightClassName="inset-x-0 rounded-[6px] bg-hover">
               {results.map((item) => (
                 <button
-                  key={item}
+                  key={keyOf(item)}
                   data-menu-row
                   type="button"
-                  onClick={() => setQuery(item)}
-                  className="relative z-10 flex h-8 w-full items-center rounded-[6px] px-2 text-left text-[13px] text-ink"
+                  onClick={() => pick(item)}
+                  className="relative z-10 flex h-8 w-full items-center gap-2 rounded-[6px] px-2 text-left text-[13px] text-ink"
                   style={{ animation: "fade-in 200ms ease-out both" }}
                 >
-                  {item}
+                  <span className="min-w-0 flex-1 truncate">{labelOf(item)}</span>
+                  {typeof item !== "string" && item.hint && <span className="shrink-0 text-[11.5px] text-ink-3">{item.hint}</span>}
                 </button>
               ))}
             </GlideMenu>

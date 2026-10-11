@@ -9,6 +9,7 @@ import ThinkingState from "@/components/bui/ThinkingState";
 import ToolChips from "@/components/bui/ToolChips";
 import { CommandApproval } from "@/components/fml/CommandApproval";
 import { PlanNotice, planNoticeKind } from "@/components/fml/PlanNotice";
+import { SelectionBar } from "@/components/fml/SelectionBar";
 import { taskRows, toolStep, toolsHeader, visibleTools } from "@/lib/view";
 import { store, useApp } from "@/state/store";
 import type { Item, Message, PendingQuestion, ReasoningItem, SessionView, TextItem, ToolItem } from "../../shared/session";
@@ -295,8 +296,9 @@ export function Chat() {
   const sessions = useApp((s) => s.chat.sessions);
   const sending = useApp((s) => s.sending);
   const error = useApp((s) => s.error);
-  const { send, dismissError } = store().actions;
+  const { send, dismissError, ask } = store().actions;
   const sessionID = view.kind === "chat" ? view.sessionID : null;
+  const transcript = useRef<HTMLDivElement>(null);
   const session = sessionID ? sessions[sessionID] : undefined;
   const scroller = useRef<HTMLDivElement>(null);
   const [stick, setStick] = useState(true);
@@ -330,9 +332,10 @@ export function Chat() {
         }}
         className="min-h-0 flex-1 overflow-y-auto"
       >
-        <div className="mx-auto w-full max-w-[720px] px-6 pt-8 pb-6">
+        <div ref={transcript} className="mx-auto w-full max-w-[720px] px-6 pt-8 pb-6">
           <Transcript session={session} />
         </div>
+        <SelectionBar root={transcript} onAsk={(p) => void (session.status === "idle" ? send(p) : ask(p))} />
       </div>
       <div className="mx-auto flex w-full max-w-[720px] flex-col gap-2 px-6 pb-5">
         {rows.length > 0 && <TaskRows variant="List" rows={rows} labels={{ completed: "Done", failed: "Skipped" }} />}
