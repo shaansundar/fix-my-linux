@@ -16,7 +16,13 @@ const WORD_MS = 55;
 const HOLD_MS = 3400;
 
 /* one streamed word, or a `cite` placeholder that renders an inline source chip */
-export type StreamingToken = { text: string; cite?: boolean };
+/** `raw` tokens render exactly as given (whitespace included) instead of word + space. */
+export type StreamingToken = { text: string; cite?: boolean; raw?: boolean };
+
+/** Splits live text into raw word tokens so it streams word by word. */
+export function tokenize(text: string): StreamingToken[] {
+  return (text.match(/\s*\S+\s*/g) ?? []).map((t) => ({ text: t, raw: true }));
+}
 
 const TOKENS: StreamingToken[] = [
   ..."Pistachio is your fastest-growing flavor — sales are up 23% this month and margins beat vanilla by 8 points."
@@ -73,6 +79,8 @@ function SourceChip({ source }: { source?: StreamingSource }) {
   );
 }
 
+const ACTION_KEYS = ["copy", "retry", "up", "down"] as const;
+const ACTION_LABELS = ["Copy", "Try again", "Helpful", "Not helpful"];
 const ACTION_ICONS: React.ReactNode[] = [
   <g key="copy"><rect x="9" y="9" width="12" height="12" rx="2.5" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></g>,
   <path key="retry" d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6" />,
@@ -101,6 +109,9 @@ export default function StreamingText({
   fill = false,
   onDone,
   onFollowUp,
+  instant = false,
+  showActions = true,
+  onAction,
 }: {
   variant?: string;
   /** the streamed tokens; `cite` tokens render an inline source chip */
@@ -118,9 +129,13 @@ export default function StreamingText({
   onDone?: () => void;
   /** fired when a follow-up prompt is chosen */
   onFollowUp?: (text: string, index: number) => void;
+  /** render fully at once (history), but keep streaming any later growth */
+  instant?: boolean;
+  showActions?: boolean;
+  onAction?: (action: "copy" | "retry" | "up" | "down") => void;
 } = {}) {
   const l = { ...DEFAULT_LABELS, ...labels };
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState(instant ? content.length : 0);
   const [sourcesOpen, setSourcesOpen] = useState(false);
   const done = count >= content.length;
 
@@ -130,7 +145,7 @@ export default function StreamingText({
       return;
     }
     const t = setTimeout(
-      () => setCount((c) => (c >= content.length ? 0 : c + 1)),
+      () => setCount((c) => (c >= content.length ? (loop ? 0 : c) : c + 1)),
       done ? HOLD_MS : WORD_MS,
     );
     return () => clearTimeout(t);
@@ -139,13 +154,13 @@ export default function StreamingText({
 
   return (
     <div className={fill ? "w-full" : "min-h-[15.5rem] w-full max-w-95"}>
-      <p className="text-[13px] leading-relaxed text-ink">
+      <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-ink">
         {content.slice(0, count).map((token, i) =>
-          token.cite ? (
+          token.cite && sources[0] ? (
             <SourceChip key={i} source={sources[0]} />
           ) : (
             <span key={i} className="inline">
-              {token.text}{" "}
+              {token.raw ? token.text : `${token.text} `}
             </span>
           ),
         )}
@@ -158,6 +173,7 @@ export default function StreamingText({
       </p>
 
       {/* action icons row */}
+      {showActions && (
       <div
         className="mt-2 flex items-center gap-0.5 transition-opacity duration-400"
         style={{ opacity: done ? 1 : 0, pointerEvents: done ? "auto" : "none" }}
@@ -166,7 +182,8 @@ export default function StreamingText({
           <button
             key={i}
             type="button"
-            aria-label="Action"
+            aria-label={ACTION_LABELS[i]}
+            onClick={() => onAction?.(ACTION_KEYS[i]!)}
             className="flex size-6 items-center justify-center rounded-[6px] text-ink-3
               transition-colors duration-100 hover:bg-hover-2 hover:text-ink-2"
           >
@@ -175,6 +192,7 @@ export default function StreamingText({
             </svg>
           </button>
         ))}
+        {sources.length > 0 && (
         <button
           type="button"
           aria-expanded={sourcesOpen}
@@ -193,7 +211,9 @@ export default function StreamingText({
           </span>
           <span className="text-[12px] text-ink-2">{l.sources}</span>
         </button>
+        )}
       </div>
+      )}
 
       <div
         className="grid transition-[grid-template-rows,opacity] duration-300"
@@ -223,6 +243,7 @@ export default function StreamingText({
       </div>
 
       {/* follow-ups */}
+      {followUps.length > 0 && (
       <div
         className="mt-2.5 transition-opacity duration-400"
         style={{ opacity: done ? 1 : 0, pointerEvents: done ? "auto" : "none" }}
@@ -251,6 +272,7 @@ export default function StreamingText({
           ))}
         </div>
       </div>
+      )}
     </div>
   );
 }

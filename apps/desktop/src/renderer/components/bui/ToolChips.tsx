@@ -27,6 +27,10 @@ const Icons: Record<string, React.ReactNode> = {
 export type ToolDetailLine = { text: string; tone?: "add" };
 
 export type ToolStep = {
+  /** stable key for live rows (defaults to label) */
+  id?: string;
+  /** live state; omitted rows render as finished */
+  status?: "running" | "done" | "failed";
   icon: string;
   label: string;
   chip: string;
@@ -116,6 +120,8 @@ export default function ToolChips({
   className,
   onOpenChange,
   onToggleRow,
+  live = false,
+  defaultOpen = true,
 }: {
   /** Accepted for gallery/registry parity; ToolChips has no visual variants. */
   variant?: string;
@@ -126,10 +132,13 @@ export default function ToolChips({
   className?: string;
   onOpenChange?: (open: boolean) => void;
   onToggleRow?: (label: string, open: boolean) => void;
+  /** show every row immediately (no scripted reveal) */
+  live?: boolean;
+  defaultOpen?: boolean;
 } = {}) {
   const copy = { ...DEFAULT_LABELS, ...labels };
   const [step, setStep] = useState(0);
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(defaultOpen);
   const [openRows, setOpenRows] = useState<Set<string>>(new Set());
   /* Rendered in a body portal so animated/translated reply wrappers cannot
    * redefine the fixed-position coordinate system. */
@@ -154,12 +163,13 @@ export default function ToolChips({
   const closePreview = (file: string) => () =>
     setPreview((current) => (current?.file === file ? null : current));
   const total = steps.length + 1; // rows, then diff chips
+  const shown = live ? total : step;
 
   useEffect(() => {
-    if (step >= total) return;
+    if (live || step >= total) return;
     const t = setTimeout(() => setStep((s) => s + 1), STEP_MS);
     return () => clearTimeout(t);
-  }, [step, total]);
+  }, [step, total, live]);
 
   const toggleRow = (label: string) =>
     setOpenRows((current) => {
@@ -170,7 +180,7 @@ export default function ToolChips({
     });
 
   return (
-    <div className={`min-h-[220px] w-full max-w-80 pb-1${className ? ` ${className}` : ""}`}>
+    <div className={`${live ? "" : "min-h-[220px] max-w-80 "}w-full pb-1${className ? ` ${className}` : ""}`}>
       {/* collapsed run header */}
       <button
         type="button"
@@ -195,23 +205,31 @@ export default function ToolChips({
             row hover pills room inside this overflow-hidden clip box */}
         <div className="-mx-1 overflow-hidden px-1.5 pb-1">
         <div className="mt-1.5 flex flex-col gap-1">
-          {steps.slice(0, step).map((row) => {
-            const rowOpen = openRows.has(row.label);
+          {steps.slice(0, shown).map((row) => {
+            const rowKey = row.id ?? row.label;
+            const rowOpen = openRows.has(rowKey);
             return (
-            <div key={row.label} style={{ animation: "fade-up 300ms cubic-bezier(0.23,1,0.32,1) both" }}>
+            <div key={rowKey} style={{ animation: "fade-up 300ms cubic-bezier(0.23,1,0.32,1) both" }}>
               <button
                 type="button"
                 aria-expanded={rowOpen}
-                onClick={() => toggleRow(row.label)}
+                onClick={() => toggleRow(rowKey)}
                 className="group/row -mx-[3px] flex h-7 w-[calc(100%+6px)] min-w-0 items-center gap-2 rounded-control px-[3px] text-left transition-colors duration-100 hover:bg-hover-2"
               >
-                <span className="relative flex size-4 shrink-0 items-center justify-center text-ink-3">
+                <span className={`relative flex size-4 shrink-0 items-center justify-center ${row.status === "failed" ? "text-red" : "text-ink-3"}`}>
+                  {row.status === "running" ? (
+                    <span
+                      className={`size-3 rounded-full border-[1.5px] border-line-strong border-t-ink-2 transition-opacity duration-100 group-hover/row:opacity-0 ${rowOpen ? "opacity-0" : ""}`}
+                      style={{ animation: "spin 700ms linear infinite" }}
+                    />
+                  ) : (
                   <svg
                     width="13" height="13" viewBox="0 0 24 24" fill={row.icon === "think" ? "currentColor" : "none"} stroke="currentColor"
                     className={`transition-opacity duration-100 group-hover/row:opacity-0 ${rowOpen ? "opacity-0" : ""}`}
                   >
-                    {Icons[row.icon]}
+                    {Icons[row.icon] ?? Icons.run}
                   </svg>
+                  )}
                   <svg
                     width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
                     className={`absolute transition-[opacity,transform] duration-150 group-hover/row:opacity-100 ${rowOpen ? "opacity-100" : "opacity-0"}`}
@@ -254,7 +272,7 @@ export default function ToolChips({
         </div>
 
       {/* file-diff chips */}
-      {step >= total && (
+      {shown >= total && diffs.length > 0 && (
         <div className="mt-2.5 flex max-w-full flex-wrap gap-1.5 border-t border-line pt-2.5">
           {diffs.map((d, i) => (
             <span
@@ -282,6 +300,7 @@ export default function ToolChips({
 
             </span>
           ))}
+          {copy.more && (
           <button
             type="button"
             className="inline-flex h-7 items-center rounded-chip px-1.5 font-mono text-[11.5px] text-ink-3
@@ -291,6 +310,7 @@ export default function ToolChips({
           >
             {copy.more}
           </button>
+          )}
         </div>
       )}
         </div>

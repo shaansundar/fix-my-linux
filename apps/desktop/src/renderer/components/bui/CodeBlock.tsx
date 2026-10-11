@@ -133,6 +133,12 @@ export type CodeBlockProps = {
   labels?: Partial<CodeBlockLabels>;
   /** Called with the copied text after a successful copy. */
   onCopy?: (text: string) => void;
+  /** Fill the parent width instead of the gallery's fixed measure. */
+  fill?: boolean;
+  /** Cap the body height (px) and scroll, for long command output. */
+  maxBodyHeight?: number;
+  /** Hide line numbers, e.g. for terminal output. */
+  plain?: boolean;
 };
 
 export default function CodeBlock({
@@ -143,6 +149,9 @@ export default function CodeBlock({
   filename = FILE,
   labels,
   onCopy,
+  fill = false,
+  maxBodyHeight,
+  plain = false,
 }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
   const isDiff = variant === "Diff";
@@ -161,7 +170,7 @@ export default function CodeBlock({
   const removed = diff.filter((r) => r.type === "del").length;
 
   return (
-    <div className="w-full max-w-105 overflow-hidden rounded-card bg-surface shadow-card">
+    <div className={`w-full ${fill ? "" : "max-w-105 "}overflow-hidden rounded-card bg-surface shadow-card`}>
       {/* header — file · (diff stat | copy) */}
       <div className="flex h-11 items-center gap-2 border-b border-line px-4 text-[12.5px]">
         <span className="inline-flex min-w-0 items-center gap-[7px]">
@@ -194,7 +203,10 @@ export default function CodeBlock({
       </div>
 
       {/* body — equal 12px inset on top / left / right; lines wrap */}
-      <div className="py-3 font-mono text-[12.5px] leading-[1.65] text-ink-2">
+      <div
+        className={`py-3 font-mono text-[12.5px] leading-[1.65] text-ink-2${maxBodyHeight ? " overflow-y-auto" : ""}`}
+        style={maxBodyHeight ? { maxHeight: maxBodyHeight } : undefined}
+      >
         {isDiff ? (
           <div className="relative">
             <span className="pointer-events-none absolute inset-y-0 left-5 w-px bg-line" />
@@ -219,6 +231,12 @@ export default function CodeBlock({
                 </div>
               );
             })}
+          </div>
+        ) : plain ? (
+          <div className="px-4">
+            {lines.map((line, i) => (
+              <code key={i} className="block break-words whitespace-pre-wrap">{line || " "}</code>
+            ))}
           </div>
         ) : (
           <div className="relative">

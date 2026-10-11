@@ -1,4 +1,5 @@
 import { lazy, Suspense, useSyncExternalStore } from "react";
+import { App } from "./App";
 
 const Gallery = import.meta.env.DEV ? lazy(() => import("./dev/Gallery")) : null;
 
@@ -16,9 +17,5 @@ export function Root() {
       </Suspense>
     );
   }
-  return (
-    <main className="flex h-screen items-center justify-center text-ink-2">
-      <a href="#/gallery" className="text-accent-ink">Open component gallery</a>
-    </main>
-  );
+  return <App />;
 }

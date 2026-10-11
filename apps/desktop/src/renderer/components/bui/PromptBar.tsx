@@ -72,7 +72,7 @@ const BRANDS: Record<string, React.ReactNode> = {
   ),
 };
 
-type Source = {
+export type PromptSource = {
   key: string;
   name: string;
   desc: string;
@@ -82,7 +82,7 @@ type Source = {
   connect?: boolean;
 };
 
-const SOURCES: Source[] = [
+const SOURCES: PromptSource[] = [
   { key: "attach", name: "Add photos & files", desc: "Upload from your computer", glyph: "clip", attach: true },
   { key: "scoop", name: "Scoop Data", desc: "Sales & churn metrics", glyph: "chart" },
   { key: "flavors", name: "Flavor records", desc: "26 makers, tags, links", glyph: "layers" },
@@ -92,7 +92,11 @@ const SOURCES: Source[] = [
   { key: "gmail", name: "Gmail", desc: "Read and manage Gmail", brand: "gmail", connect: true },
 ];
 
-const COMMANDS = [
+export type PromptCommand = { key: string; name: string; desc: string; /** replaces the draft when picked */ prompt?: string };
+export type PromptModel = { key: string; name: string; tag: string };
+export type PromptSendContext = { sources: string[]; attachments: string[] };
+
+const COMMANDS: PromptCommand[] = [
   { key: "compare", name: "/compare", desc: "Flavor vs. last summer" },
   { key: "churn-plan", name: "/churn-plan", desc: "Draft a churn schedule" },
   { key: "restock", name: "/restock", desc: "Build a reorder list" },
@@ -100,7 +104,7 @@ const COMMANDS = [
   { key: "summarize", name: "/summarize", desc: "Digest the thread so far" },
 ];
 
-const MODELS = [
+const MODELS: PromptModel[] = [
   { key: "sprinkles-5", name: "Sprinkles 5", tag: "Flagship" },
   { key: "vanilla-1", name: "Vanilla 1", tag: "Basic" },
   { key: "freezer-burn", name: "Freezer Burn 0.4", tag: "Stale" },
@@ -153,6 +157,18 @@ export default function PromptBar({
   tall = false,
   placeholder,
   onSend,
+  sources = SOURCES,
+  commands = COMMANDS,
+  models = MODELS,
+  model: modelKey,
+  onModelChange,
+  celebrateModel = "sprinkles-5",
+  dictation = true,
+  busy = false,
+  onStop,
+  onAttach,
+  disabled = false,
+  autoFocus = false,
 }: {
   variant?: string;
   /** the self-running walkthrough; turn off when embedding in a real surface */
@@ -160,14 +176,33 @@ export default function PromptBar({
   /** hero sizing: a multi-line input with controls on their own row */
   tall?: boolean;
   placeholder?: string;
-  onSend?: (text: string) => void;
+  onSend?: (text: string, context: PromptSendContext) => void;
+  /** @ menu entries */
+  sources?: PromptSource[];
+  /** / menu entries */
+  commands?: PromptCommand[];
+  models?: PromptModel[];
+  /** controlled model key */
+  model?: string;
+  onModelChange?: (key: string) => void;
+  /** switching to this model plays the rainbow sweep */
+  celebrateModel?: string;
+  dictation?: boolean;
+  /** the agent is working: the send button becomes a stop button */
+  busy?: boolean;
+  onStop?: () => void;
+  /** picks a file for the attach source; resolves to its display name */
+  onAttach?: () => Promise<string | null>;
+  disabled?: boolean;
+  autoFocus?: boolean;
 }) {
   const pill = variant === "Pill";
   const [draft, setDraft] = useState("");
   const [dismissed, setDismissed] = useState(false);
   const [plusOpen, setPlusOpen] = useState(false);
   const [modelOpen, setModelOpen] = useState(false);
-  const [model, setModel] = useState(MODELS[1]);
+  const [internalModel, setModel] = useState(models[1] ?? models[0]!);
+  const model = models.find((m) => m.key === modelKey) ?? internalModel;
   const [attachments, setAttachments] = useState<string[]>([]);
   const [connected, setConnected] = useState(false);
   const [active, setActive] = useState(0);
@@ -206,9 +241,9 @@ export default function PromptBar({
 
   const rows: { key: string; name: string; desc: string }[] =
     menu === "at"
-      ? SOURCES.filter((s) => s.name.toLowerCase().includes(query))
+      ? sources.filter((s) => s.name.toLowerCase().includes(query))
       : menu === "slash"
-        ? COMMANDS.filter((c) => c.name.slice(1).startsWith(query))
+        ? commands.filter((c) => c.name.slice(1).startsWith(query))
         : [];
 
   useEffect(() => {
@@ -225,7 +260,7 @@ export default function PromptBar({
 
   /* same gliding highlight in the model menu — floats to the hovered
    * row, falling back to the currently-selected model */
-  const modelIndex = MODELS.findIndex((m) => m.key === model.key);
+  const modelIndex = models.findIndex((m) => m.key === model.key);
   useLayoutEffect(() => {
     if (!modelOpen) return;
     const target = modelRowRefs.current[modelHovered ?? modelIndex];
@@ -305,10 +340,11 @@ export default function PromptBar({
     });
   };
 
-  const selectModel = (next: (typeof MODELS)[number]) => {
+  const selectModel = (next: PromptModel) => {
     setModel(next);
     setModelOpen(false);
-    if (next.key === "sprinkles-5") celebrate();
+    onModelChange?.(next.key);
+    if (next.key === celebrateModel) celebrate();
   };
 
   /* autoplay: apply the current step, then advance after its hold */
@@ -320,7 +356,7 @@ export default function PromptBar({
     if (step.connect !== undefined) setConnected(step.connect);
     if (step.modelOpen !== undefined) setModelOpen(step.modelOpen);
     if (step.model) {
-      const next = MODELS.find((m) => m.key === step.model);
+      const next = models.find((m) => m.key === step.model);
       if (next) selectModel(next);
     }
     const t = setTimeout(() => setAutoStep((s) => s + 1), step.hold);
@@ -381,10 +417,19 @@ export default function PromptBar({
   };
 
   const pick = (row: { key: string; name: string }) => {
-    const source = SOURCES.find((s) => s.key === row.key);
+    const source = menu === "at" ? sources.find((s) => s.key === row.key) : undefined;
+    const command = menu === "slash" ? commands.find((c) => c.key === row.key) : undefined;
     if (source?.attach) {
-      setAttachments((current) => [...current, FILES[current.length % FILES.length]]);
+      if (onAttach) {
+        void onAttach().then((file) => {
+          if (file) setAttachments((current) => [...current, file]);
+        });
+      } else {
+        setAttachments((current) => [...current, FILES[current.length % FILES.length]]);
+      }
       if (token) setDraft(draft.slice(0, token.start));
+    } else if (command?.prompt) {
+      setDraft(command.prompt);
     } else if (menu === "at") {
       setDraft(`${token ? draft.slice(0, token.start) : draft}@${row.name} `);
     } else {
@@ -395,10 +440,12 @@ export default function PromptBar({
     inputRef.current?.focus();
   };
 
-  const canSend = draft.trim().length > 0 || attachments.length > 0;
+  const canSend = !disabled && (draft.trim().length > 0 || attachments.length > 0);
+  const showStop = busy && !canSend && !!onStop;
   const send = () => {
     if (!canSend) return;
-    onSend?.(draft.trim());
+    const mentioned = sources.filter((s) => !s.attach && draft.includes(`@${s.name}`)).map((s) => s.key);
+    onSend?.(draft.trim(), { sources: mentioned, attachments });
     setDraft("");
     setAttachments([]);
     closeMenus();
@@ -433,7 +480,7 @@ export default function PromptBar({
             }}
           />
           {rows.map((row, i) => {
-            const source = menu === "at" ? SOURCES.find((s) => s.key === row.key) : undefined;
+            const source = menu === "at" ? sources.find((s) => s.key === row.key) : undefined;
             return (
               <button
                 key={row.key}
@@ -506,7 +553,7 @@ export default function PromptBar({
                 "top 220ms cubic-bezier(0.23,1,0.32,1), height 220ms cubic-bezier(0.23,1,0.32,1), opacity 150ms ease",
             }}
           />
-          {MODELS.map((m, i) => (
+          {models.map((m, i) => (
             <button
               key={m.key}
               type="button"
@@ -587,8 +634,12 @@ export default function PromptBar({
           ref={controlsRef}
           className={`grid items-end gap-x-1 gap-y-1.5 ${
             wide
-              ? "grid-cols-[28px_auto_minmax(0,1fr)_28px_28px]"
-              : "grid-cols-[28px_minmax(0,1fr)_auto_28px_28px]"
+              ? dictation
+                ? "grid-cols-[28px_auto_minmax(0,1fr)_28px_28px]"
+                : "grid-cols-[28px_auto_minmax(0,1fr)_28px]"
+              : dictation
+                ? "grid-cols-[28px_minmax(0,1fr)_auto_28px_28px]"
+                : "grid-cols-[28px_minmax(0,1fr)_auto_28px]"
           }`}
         >
           <button
@@ -610,6 +661,8 @@ export default function PromptBar({
           <textarea
             ref={inputRef}
             rows={1}
+            autoFocus={autoFocus}
+            disabled={disabled}
             value={draft}
             onChange={(event) => {
               setDraft(event.target.value);
@@ -668,6 +721,7 @@ export default function PromptBar({
           </button>
 
           {/* dictation */}
+          {dictation && (
           <button
             type="button"
             aria-label={listening ? "Stop dictation" : "Start dictation"}
@@ -691,22 +745,31 @@ export default function PromptBar({
               <Icon size={15} strokeWidth={2}><g><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3" /></g></Icon>
             )}
           </button>
+          )}
 
           {/* send — tactile square (round in the pill variant) */}
           <button
             type="button"
-            aria-label="Send"
-            disabled={!canSend}
-            onClick={send}
+            aria-label={showStop ? "Stop" : "Send"}
+            disabled={!canSend && !showStop}
+            onClick={showStop ? onStop : send}
             className={`flex size-7 shrink-0 items-center justify-center transition-[background-color,color,transform] duration-200 enabled:active:scale-[0.94] ${
               pill ? "rounded-full" : "rounded-[8px]"
-            } ${wide ? "col-start-5 row-start-2" : "col-start-5 row-start-1"}`}
+            } ${
+              dictation
+                ? wide ? "col-start-5 row-start-2" : "col-start-5 row-start-1"
+                : wide ? "col-start-4 row-start-2" : "col-start-4 row-start-1"
+            }`}
             style={{
-              background: canSend ? "var(--ink)" : "var(--line-strong)",
-              color: canSend ? "var(--surface)" : "var(--ink-2)",
+              background: canSend || showStop ? "var(--ink)" : "var(--line-strong)",
+              color: canSend || showStop ? "var(--surface)" : "var(--ink-2)",
             }}
           >
-            <Icon size={16} strokeWidth={2.4}><path d="M12 19V5M5 12l7-7 7 7" /></Icon>
+            {showStop ? (
+              <span className="size-2.5 rounded-[2px] bg-current" />
+            ) : (
+              <Icon size={16} strokeWidth={2.4}><path d="M12 19V5M5 12l7-7 7 7" /></Icon>
+            )}
           </button>
         </div>
       </div>

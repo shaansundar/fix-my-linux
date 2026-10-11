@@ -29,11 +29,22 @@ import GlideMenu from "@/components/primitives/GlideMenu";
  * chat history, and a collapse that preserves icon alignment.
  * ───────────────────────────────────────────────────────── */
 
-const WORKSPACE = { key: "creamery", name: "Creamery Ops", monogram: "C" };
+export type SidebarWorkspace = { name: string; monogram: string };
+export type SidebarNavItem = { key: string; label: string; icon: ReactNode; count?: string };
+export type SidebarMenuItem = { label: string; icon: ReactNode; onSelect?: () => void; separatorBefore?: boolean };
 
-const NAV_ITEMS = [
+const WORKSPACE: SidebarWorkspace = { name: "Creamery Ops", monogram: "C" };
+
+const NAV_ITEMS: SidebarNavItem[] = [
   { key: "home", label: "Home", icon: <IconHome size={18} /> },
   { key: "invite", label: "Invite users", icon: <IconUserAdd size={18} />, count: "3/10" },
+];
+
+const MENU_ITEMS: SidebarMenuItem[] = [
+  { label: "New workspace", icon: <IconPlusMedium size={16} /> },
+  { label: "Workspace settings", icon: <IconSettingsGear1 size={16} /> },
+  { label: "Invite team members", icon: <IconUserAdd size={16} /> },
+  { label: "Sign out", icon: <IconArrowBoxLeft size={16} />, separatorBefore: true },
 ];
 
 export type SidebarRecent = {
@@ -67,6 +78,13 @@ type SidebarNavProps = {
   footerIcon?: ReactNode;
   onFooterClick?: () => void;
   recents?: SidebarRecent[];
+  /** Highlights a chat by id (preferred over matching titles). */
+  activeId?: string | null;
+  workspace?: SidebarWorkspace;
+  navItems?: SidebarNavItem[];
+  menuItems?: SidebarMenuItem[];
+  /** Replaces the footer button entirely, e.g. with a usage meter. */
+  footer?: ReactNode;
   variant?: string;
 };
 
@@ -144,9 +162,13 @@ function RailButton({
 function WorkspaceMenu({
   position,
   onClose,
+  workspace,
+  items,
 }: {
   position: { top: number; left: number };
   onClose: () => void;
+  workspace: SidebarWorkspace;
+  items: SidebarMenuItem[];
 }) {
   return createPortal(
     <div
@@ -167,38 +189,29 @@ function WorkspaceMenu({
           className="relative z-10 flex h-10 w-full items-center gap-1.5 rounded-[8px] px-2 text-left"
         >
           <span className="flex size-6 shrink-0 items-center justify-center rounded-[7px] bg-ink text-[11px] font-semibold text-surface">
-            {WORKSPACE.monogram}
+            {workspace.monogram}
           </span>
-          <span className="min-w-0 flex-1 truncate text-[13.5px] font-medium text-ink">{WORKSPACE.name}</span>
+          <span className="min-w-0 flex-1 truncate text-[13.5px] font-medium text-ink">{workspace.name}</span>
           <span className="shrink-0 text-ink"><IconCheckmark1Small size={18} /></span>
         </button>
         <div className="my-1 h-px bg-line" />
-        {[
-          { label: "New workspace", icon: <IconPlusMedium size={16} /> },
-          { label: "Workspace settings", icon: <IconSettingsGear1 size={16} /> },
-          { label: "Invite team members", icon: <IconUserAdd size={16} /> },
-        ].map((item) => (
-          <button
-            key={item.label}
-            data-menu-row
-            type="button"
-            onClick={onClose}
-            className="relative z-10 flex h-9 w-full items-center gap-1.5 rounded-[8px] px-2 text-left"
-          >
-            <span className="flex size-5 shrink-0 items-center justify-center text-ink-2">{item.icon}</span>
-            <span className="min-w-0 flex-1 truncate text-[13.5px] text-ink">{item.label}</span>
-          </button>
+        {items.map((item) => (
+          <div key={item.label}>
+            {item.separatorBefore && <div className="my-1 h-px bg-line" />}
+            <button
+              data-menu-row
+              type="button"
+              onClick={() => {
+                onClose();
+                item.onSelect?.();
+              }}
+              className="relative z-10 flex h-9 w-full items-center gap-1.5 rounded-[8px] px-2 text-left"
+            >
+              <span className="flex size-5 shrink-0 items-center justify-center text-ink-2">{item.icon}</span>
+              <span className="min-w-0 flex-1 truncate text-[13.5px] text-ink">{item.label}</span>
+            </button>
+          </div>
         ))}
-        <div className="my-1 h-px bg-line" />
-        <button
-          data-menu-row
-          type="button"
-          onClick={onClose}
-          className="relative z-10 flex h-9 w-full items-center gap-1.5 rounded-[8px] px-2 text-left"
-        >
-          <span className="flex size-5 shrink-0 items-center justify-center text-ink-2"><IconArrowBoxLeft size={16} /></span>
-          <span className="min-w-0 flex-1 truncate text-[13.5px] text-ink">Sign out</span>
-        </button>
       </GlideMenu>
     </div>,
     document.body,
@@ -217,6 +230,11 @@ export default function SidebarNav({
   footerIcon,
   onFooterClick,
   recents = DEFAULT_RECENTS,
+  activeId,
+  workspace = WORKSPACE,
+  navItems = NAV_ITEMS,
+  menuItems = MENU_ITEMS,
+  footer,
 }: SidebarNavProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [internalNav, setInternalNav] = useState("chats");
@@ -295,14 +313,21 @@ export default function SidebarNav({
               <IconPopsicle2 size={18} />
             </span>
             <span className="sidebar-copy ml-1.5 min-w-0 flex-1 truncate text-[14px] font-medium text-ink-2">
-              {WORKSPACE.name}
+              {workspace.name}
             </span>
             <span className="sidebar-copy ml-1 flex shrink-0 text-ink-3">
               <IconChevronDownSmall size={16} />
             </span>
           </button>
 
-          {workspaceOpen && <WorkspaceMenu position={workspacePosition} onClose={() => setWorkspaceOpen(false)} />}
+          {workspaceOpen && (
+            <WorkspaceMenu
+              position={workspacePosition}
+              onClose={() => setWorkspaceOpen(false)}
+              workspace={workspace}
+              items={menuItems}
+            />
+          )}
 
           <button
             type="button"
@@ -336,7 +361,7 @@ export default function SidebarNav({
               onNewChat?.();
             }}
           />
-          {NAV_ITEMS.map((item) => (
+          {navItems.map((item) => (
             <RailButton
               key={item.key}
               icon={item.icon}
@@ -411,7 +436,7 @@ export default function SidebarNav({
 
           <GlideGroup>
             {visibleRecents.map((item) => {
-              const active = item.label === selectedTitle;
+              const active = activeId !== undefined ? item.id === activeId : item.label === selectedTitle;
               return (
                 <button
                   key={item.id}
@@ -440,14 +465,16 @@ export default function SidebarNav({
         </div>
 
         <div className="sidebar-copy mx-2 mt-3 w-[208px] border-t border-line pt-3">
-          <button
-            type="button"
-            onClick={onFooterClick ?? onNewChat}
-            className="flex h-8 w-full items-center justify-center gap-1.5 rounded-control bg-hover-2 text-[12.5px] font-medium text-ink transition-[background-color,transform] duration-150 hover:bg-line-strong active:scale-[0.98]"
-          >
-            {footerIcon}
-            {footerLabel}
-          </button>
+          {footer ?? (
+            <button
+              type="button"
+              onClick={onFooterClick ?? onNewChat}
+              className="flex h-8 w-full items-center justify-center gap-1.5 rounded-control bg-hover-2 text-[12.5px] font-medium text-ink transition-[background-color,transform] duration-150 hover:bg-line-strong active:scale-[0.98]"
+            >
+              {footerIcon}
+              {footerLabel}
+            </button>
+          )}
         </div>
       </div>
     </aside>

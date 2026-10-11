@@ -87,7 +87,7 @@ export type TaskRow = {
   key: string;
   label: string;
   amount: string;
-  status: "done" | "running" | "sequence";
+  status: "done" | "running" | "pending" | "failed" | "sequence";
   step?: number;
   details: TaskDetail[];
 };
@@ -158,6 +158,8 @@ export default function TaskRows({
   const badgeFor = (row: TaskRow) => {
     if (row.status === "done") return <Badge tone="green">{CheckIcon}</Badge>;
     if (row.status === "running") return <SpinnerRing active>{row.step}</SpinnerRing>;
+    if (row.status === "pending") return <SpinnerRing>{row.step}</SpinnerRing>;
+    if (row.status === "failed") return <Badge tone="red">{XIcon}</Badge>;
     return row2 === "pending" ? (
       <SpinnerRing>{row.step}</SpinnerRing>
     ) : row2 === "failed" ? (
@@ -174,7 +176,13 @@ export default function TaskRows({
           {copy.completed}
         </span>
       );
-    if (row.status === "running") return null;
+    if (row.status === "running" || row.status === "pending") return null;
+    if (row.status === "failed")
+      return (
+        <span className="inline-flex h-5.5 items-center rounded-full bg-red-tint px-2 text-[11.5px] font-medium text-red">
+          {copy.failed}
+        </span>
+      );
     return row2 === "failed" ? (
       <span className="inline-flex h-5.5 items-center gap-1.5 rounded-full bg-red-tint px-2 text-[11.5px] font-medium text-red" style={{ animation: "fade-in 200ms ease-out both" }}>
         {copy.failed} <span style={{ animation: "spin 1.2s linear infinite" }} className="flex">{RetryIcon}</span>

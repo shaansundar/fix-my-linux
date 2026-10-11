@@ -11,20 +11,17 @@ import { useState } from "react";
  * Status chips directly filter the task table.
  * ───────────────────────────────────────────────────────── */
 
-type Status = "todo" | "progress" | "done";
+type Status = string;
 
-export type TableRow = { task: string; date: string; status: Status; owner: string };
+export type TableRow = { id?: string; task: string; date: string; status: Status; owner: string; mono?: boolean };
+
+/** A status: its pill label, the pill class (see bui.css), and the filter dot color. */
+export type FilterStatus = { label: string; cls: string; dot: string };
 
 export type FilterTableLabels = {
   columns: { task: string; date: string; status: string; owner: string };
 };
 
-const FILTERS: { key: "all" | Status; label: string; dot?: string; count: number }[] = [
-  { key: "all", label: "All", count: 5 },
-  { key: "todo", label: "To do", dot: "#f09a2f", count: 2 },
-  { key: "progress", label: "In Progress", dot: "#16a6c7", count: 2 },
-  { key: "done", label: "Completed", dot: "#25a878", count: 1 },
-];
 
 const ROWS: TableRow[] = [
   { task: "Restock mango sorbet", date: "Dec 03", status: "todo", owner: "Mango Moon Gelato" },
@@ -38,24 +35,44 @@ const LABELS: FilterTableLabels = {
   columns: { task: "Task name", date: "Date", status: "Status", owner: "Advisor" },
 };
 
-const PILLS: Record<Status, { label: string; cls: string }> = {
-  todo: { label: "To do", cls: "filter-status-todo" },
-  progress: { label: "In Progress", cls: "filter-status-progress" },
-  done: { label: "Completed", cls: "filter-status-done" },
+const PILLS: Record<Status, FilterStatus> = {
+  todo: { label: "To do", cls: "filter-status-todo", dot: "#f09a2f" },
+  progress: { label: "In Progress", cls: "filter-status-progress", dot: "#16a6c7" },
+  done: { label: "Completed", cls: "filter-status-done", dot: "#25a878" },
 };
 
 export default function FilterTable({
   rows = ROWS,
   labels = LABELS,
+  statuses = PILLS,
+  allLabel = "All",
+  fill = false,
+  empty,
 }: {
   rows?: TableRow[];
   labels?: FilterTableLabels;
+  /** status key → pill; also the order of the filter chips */
+  statuses?: Record<Status, FilterStatus>;
+  allLabel?: string;
+  /** fill the parent width instead of the gallery's fixed measure */
+  fill?: boolean;
+  /** shown when there are no rows */
+  empty?: string;
   variant?: string;
 } = {}) {
   const [filter, setFilter] = useState<"all" | Status>("all");
+  const FILTERS: { key: "all" | Status; label: string; dot?: string; count: number }[] = [
+    { key: "all", label: allLabel, count: rows.length },
+    ...Object.entries(statuses).map(([key, st]) => ({
+      key,
+      label: st.label,
+      dot: st.dot,
+      count: rows.filter((r) => r.status === key).length,
+    })),
+  ];
 
   return (
-    <div className="w-full max-w-105">
+    <div className={fill ? "w-full" : "w-full max-w-105"}>
       {/* filter chips */}
       <div
         className="-mx-1 mb-1 flex items-center gap-1 overflow-x-auto px-1 py-1"
@@ -101,12 +118,13 @@ export default function FilterTable({
             <span className="border-r border-[var(--grid-line)] px-3 py-2">{labels.columns.status}</span>
             <span className="px-3 py-2">{labels.columns.owner}</span>
           </div>
+          {rows.length === 0 && empty && <div className="px-3 py-6 text-center text-[13px] text-ink-3">{empty}</div>}
           {rows.map((row) => {
             const shown = filter === "all" || row.status === filter;
-            const pill = PILLS[row.status];
+            const pill = statuses[row.status] ?? { label: row.status, cls: "filter-status-todo", dot: "" };
             return (
               <div
-                key={row.task}
+                key={row.id ?? row.task}
                 className="grid transition-[grid-template-rows,opacity] duration-300"
                 style={{
                   gridTemplateRows: shown ? "1fr" : "0fr",
@@ -120,7 +138,7 @@ export default function FilterTable({
                       border-[var(--grid-line)] text-[13px] transition-colors duration-100 hover:bg-hover"
                   >
                     <span className="flex min-w-0 items-center border-r border-[var(--grid-line)] px-3 py-2">
-                      <span className="truncate font-medium text-ink">{row.task}</span>
+                      <span className={`truncate font-medium text-ink${row.mono ? " font-mono text-[12px]" : ""}`} title={row.task}>{row.task}</span>
                     </span>
                     <span className="flex items-center whitespace-nowrap border-r border-[var(--grid-line)] px-3 py-2 text-ink-2 tabular-nums">
                       {row.date}

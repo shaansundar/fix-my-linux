@@ -29,7 +29,7 @@ function useSequence(steps: number[]) {
   return stage;
 }
 
-type Row = {
+export type ThinkingRow = {
   primary: string;
   secondary?: string;
   mono?: boolean;
@@ -40,7 +40,7 @@ type Row = {
 
 const VARIANTS: Record<
   string,
-  { active: string; done: string; rows: Row[]; query?: string }
+  { active: string; done: string; rows: ThinkingRow[]; query?: string }
 > = {
   Steps: {
     active: "Thinking",
@@ -101,15 +101,18 @@ export default function ThinkingState({
   active,
   done,
   icon,
+  working: liveWorking,
 }: {
   variant?: string;
   onSettled?: () => void;
   /** override the built-in trace content (keeps the primitive reusable) */
-  rows?: Row[];
+  rows?: ThinkingRow[];
   active?: string;
   done?: string;
   /** override the header glyph (defaults to the sparkle) */
   icon?: ReactNode;
+  /** live mode: drive the trace from real progress instead of the demo timeline */
+  working?: boolean;
 }) {
   const stage = useSequence(STAGES);
   const [manualExpanded, setManualExpanded] = useState<boolean | null>(null);
@@ -121,10 +124,11 @@ export default function ThinkingState({
     active: active ?? base.active,
     done: done ?? base.done,
   };
-  const autoExpanded = stage >= 1 && stage < 4;
+  const live = liveWorking !== undefined;
+  const autoExpanded = live ? false : stage >= 1 && stage < 4;
   const expanded = manualExpanded ?? autoExpanded;
-  const working = stage < 3;
-  const visible = stage < 2 ? 0 : stage === 2 ? Math.min(2, v.rows.length) : v.rows.length;
+  const working = live ? liveWorking : stage < 3;
+  const visible = live ? v.rows.length : stage < 2 ? 0 : stage === 2 ? Math.min(2, v.rows.length) : v.rows.length;
   const traceRef = useRef<HTMLDivElement>(null);
   const [lineHeight, setLineHeight] = useState(0);
   useLayoutEffect(() => {
@@ -144,7 +148,7 @@ export default function ThinkingState({
       key={variant}
       className="flex w-full max-w-95 flex-col"
       style={{
-        minHeight: working || expanded ? 176 : undefined,
+        minHeight: !live && (working || expanded) ? 176 : undefined,
         transition: "min-height 400ms cubic-bezier(0.23,1,0.32,1)",
       }}
     >

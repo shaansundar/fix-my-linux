@@ -21,6 +21,10 @@ export type ApprovalQuestion = {
   q: string;
   type: "radio" | "check";
   options: string[];
+  /** optional one-line explanation under each option */
+  descriptions?: string[];
+  /** hide the "Something else…" field */
+  noCustom?: boolean;
 };
 
 const QUESTIONS: ApprovalQuestion[] = [
@@ -148,12 +152,15 @@ export default function ApprovalCard({
   labels,
   onSubmitted,
   onAnswerChange,
+  onDismiss,
   resettable = true,
 }: {
   questions?: ApprovalQuestion[];
   labels?: Partial<ApprovalLabels>;
-  onSubmitted?: (answers: Record<number, number[]>) => void;
+  onSubmitted?: (answers: Record<number, number[]>, custom: Record<number, string>) => void;
   onAnswerChange?: (questionIndex: number, answer: number[]) => void;
+  /** the X button, or Skip on the last question */
+  onDismiss?: () => void;
   resettable?: boolean;
   variant?: string;
 } = {}) {
@@ -212,7 +219,7 @@ export default function ApprovalCard({
   const send = () => {
     if (advanceTimer.current) clearTimeout(advanceTimer.current);
     setSent(true);
-    onSubmitted?.(answers);
+    onSubmitted?.(answers, custom);
   };
 
   const advance = () => {
@@ -283,7 +290,10 @@ export default function ApprovalCard({
         <button
           type="button"
           aria-label="Dismiss"
-          onClick={() => setOpen(false)}
+          onClick={() => {
+            setOpen(false);
+            onDismiss?.();
+          }}
           className="primitive-icon-button absolute right-2.5 top-2.5 z-10 text-ink-3 transition-colors duration-100 hover:bg-hover hover:text-ink"
         >
           <Ico size={14} sw={2.2} path={<path d="M18 6L6 18M6 6l12 12" />} />
@@ -348,12 +358,18 @@ export default function ApprovalCard({
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
                               )}
                             </span>
-                            <span className={`text-[13px] leading-none transition-colors duration-200 ${on ? "text-ink" : "text-ink-2"}`}>
-                              {option}
+                            <span className="flex min-w-0 flex-col gap-0.5">
+                              <span className={`text-[13px] leading-none transition-colors duration-200 ${on ? "text-ink" : "text-ink-2"}`}>
+                                {option}
+                              </span>
+                              {question.descriptions?.[i] && (
+                                <span className="text-[11.5px] leading-tight text-ink-3">{question.descriptions[i]}</span>
+                              )}
                             </span>
                           </button>
                         );
                       })}
+                      {!question.noCustom && (
                       <label data-menu-row className="relative z-10 flex items-center gap-1.5 rounded-control pl-1 pr-2 py-1 transition-colors duration-100">
                         <input
                           value={custom[qIdx] ?? ""}
@@ -374,6 +390,7 @@ export default function ApprovalCard({
                           className="min-w-0 flex-1 bg-transparent pl-1.5 text-[13px] text-ink outline-none placeholder:text-ink-3"
                         />
                       </label>
+                      )}
                     </GlideMenu>
                   </div>
                 );
@@ -409,7 +426,15 @@ export default function ApprovalCard({
           </div>
 
           <div className="-mr-0.5 flex items-center gap-1.5">
-            <Button variant="ghost" size="sm" onClick={() => (last ? setOpen(false) : goTo(qi + 1))}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                if (!last) return goTo(qi + 1);
+                setOpen(false);
+                onDismiss?.();
+              }}
+            >
               {t.skip}
             </Button>
             <Button variant="accent" size="sm" disabled={!hasAnswer} onClick={advance}>
