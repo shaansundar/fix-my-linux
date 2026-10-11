@@ -1,0 +1,2353 @@
+{
+ "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+ "events": [
+  {
+   "id": "evt_12a9864eb001XzYoWfa7V2gQmw",
+   "type": "session.created",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "info": {
+     "id": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "slug": "kind-cactus",
+     "version": "1.19.0",
+     "projectID": "global",
+     "directory": "/private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+     "path": "private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+     "title": "basic",
+     "permission": [
+      {
+       "permission": "bash",
+       "pattern": "rm -rf /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf ~",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf ~/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr ~",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr ~/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf $HOME",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf $HOME/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm --no-preserve-root*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm * --no-preserve-root*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "mkfs*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "dd * of=/dev/*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "chmod -R 777 /*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "chown -R * /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "zsh",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh -s*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash -s*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh -",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash -",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": ":(){*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "shutdown*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "poweroff*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "halt*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "init 0*",
+       "action": "deny"
+      },
+      {
+       "permission": "task",
+       "pattern": "*",
+       "action": "deny"
+      },
+      {
+       "permission": "websearch",
+       "pattern": "*",
+       "action": "deny"
+      }
+     ],
+     "cost": 0,
+     "tokens": {
+      "input": 0,
+      "output": 0,
+      "reasoning": 0,
+      "cache": {
+       "read": 0,
+       "write": 0
+      }
+     },
+     "time": {
+      "created": 1791715992810,
+      "updated": 1791715992810
+     }
+    }
+   }
+  },
+  {
+   "id": "evt_12a9864fe001X5xPH6xs9Q7LWS",
+   "type": "session.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "info": {
+     "id": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "slug": "kind-cactus",
+     "projectID": "global",
+     "directory": "/private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+     "path": "private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+     "title": "basic",
+     "agent": "fixer",
+     "model": {
+      "id": "fml-fake",
+      "providerID": "opencode",
+      "variant": "default"
+     },
+     "version": "1.19.0",
+     "cost": 0,
+     "tokens": {
+      "input": 0,
+      "output": 0,
+      "reasoning": 0,
+      "cache": {
+       "read": 0,
+       "write": 0
+      }
+     },
+     "permission": [
+      {
+       "permission": "bash",
+       "pattern": "rm -rf /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf ~",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf ~/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr ~",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr ~/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf $HOME",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf $HOME/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm --no-preserve-root*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm * --no-preserve-root*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "mkfs*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "dd * of=/dev/*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "chmod -R 777 /*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "chown -R * /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "zsh",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh -s*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash -s*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh -",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash -",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": ":(){*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "shutdown*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "poweroff*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "halt*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "init 0*",
+       "action": "deny"
+      },
+      {
+       "permission": "task",
+       "pattern": "*",
+       "action": "deny"
+      },
+      {
+       "permission": "websearch",
+       "pattern": "*",
+       "action": "deny"
+      }
+     ],
+     "time": {
+      "created": 1791715992810,
+      "updated": 1791715992830
+     }
+    }
+   }
+  },
+  {
+   "id": "evt_12a986501001qwBiR8eKLfXs8c",
+   "type": "message.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "info": {
+     "id": "msg_12a9864fe00172KX56UbDV2fmM",
+     "role": "user",
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "time": {
+      "created": 1791715992830
+     },
+     "agent": "fixer",
+     "model": {
+      "providerID": "opencode",
+      "modelID": "fml-fake"
+     }
+    }
+   }
+  },
+  {
+   "id": "evt_12a9865020010NMWTmlqMaHu5Q",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "part": {
+     "type": "text",
+     "text": "my disk is full",
+     "messageID": "msg_12a9864fe00172KX56UbDV2fmM",
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "id": "prt_12a9865000017fY39XXJ4Lr80o"
+    },
+    "time": 1791715992834
+   }
+  },
+  {
+   "id": "evt_12a986503001JaOTxrKw5jP50P",
+   "type": "session.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "info": {
+     "id": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "slug": "kind-cactus",
+     "projectID": "global",
+     "directory": "/private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+     "path": "private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+     "title": "basic",
+     "agent": "fixer",
+     "model": {
+      "id": "fml-fake",
+      "providerID": "opencode",
+      "variant": "default"
+     },
+     "version": "1.19.0",
+     "cost": 0,
+     "tokens": {
+      "input": 0,
+      "output": 0,
+      "reasoning": 0,
+      "cache": {
+       "read": 0,
+       "write": 0
+      }
+     },
+     "permission": [
+      {
+       "permission": "bash",
+       "pattern": "rm -rf /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf ~",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf ~/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr ~",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr ~/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf $HOME",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf $HOME/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm --no-preserve-root*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm * --no-preserve-root*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "mkfs*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "dd * of=/dev/*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "chmod -R 777 /*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "chown -R * /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "zsh",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh -s*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash -s*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh -",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash -",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": ":(){*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "shutdown*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "poweroff*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "halt*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "init 0*",
+       "action": "deny"
+      },
+      {
+       "permission": "task",
+       "pattern": "*",
+       "action": "deny"
+      },
+      {
+       "permission": "websearch",
+       "pattern": "*",
+       "action": "deny"
+      }
+     ],
+     "time": {
+      "created": 1791715992810,
+      "updated": 1791715992835
+     }
+    }
+   }
+  },
+  {
+   "id": "evt_12a986507001I4YBJ94k7DOPQQ",
+   "type": "session.status",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "status": {
+     "type": "busy"
+    }
+   }
+  },
+  {
+   "id": "evt_12a986510001w8yxtVY8Z40pvo",
+   "type": "message.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "info": {
+     "id": "msg_12a986510001HSBTUS7VNFBJto",
+     "parentID": "msg_12a9864fe00172KX56UbDV2fmM",
+     "role": "assistant",
+     "mode": "fixer",
+     "agent": "fixer",
+     "path": {
+      "cwd": "/private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+      "root": "/"
+     },
+     "cost": 0,
+     "tokens": {
+      "input": 0,
+      "output": 0,
+      "reasoning": 0,
+      "cache": {
+       "read": 0,
+       "write": 0
+      }
+     },
+     "modelID": "fml-fake",
+     "providerID": "opencode",
+     "time": {
+      "created": 1791715992848
+     },
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q"
+    }
+   }
+  },
+  {
+   "id": "evt_12a9865190016L67VTwBgwpFfQ",
+   "type": "session.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "info": {
+     "id": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "slug": "kind-cactus",
+     "projectID": "global",
+     "directory": "/private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+     "path": "private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+     "title": "basic",
+     "agent": "fixer",
+     "model": {
+      "id": "fml-fake",
+      "providerID": "opencode",
+      "variant": "default"
+     },
+     "version": "1.19.0",
+     "summary": {
+      "additions": 0,
+      "deletions": 0,
+      "files": 0
+     },
+     "cost": 0,
+     "tokens": {
+      "input": 0,
+      "output": 0,
+      "reasoning": 0,
+      "cache": {
+       "read": 0,
+       "write": 0
+      }
+     },
+     "permission": [
+      {
+       "permission": "bash",
+       "pattern": "rm -rf /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf ~",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf ~/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr ~",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr ~/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf $HOME",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf $HOME/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm --no-preserve-root*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm * --no-preserve-root*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "mkfs*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "dd * of=/dev/*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "chmod -R 777 /*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "chown -R * /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "zsh",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh -s*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash -s*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh -",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash -",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": ":(){*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "shutdown*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "poweroff*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "halt*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "init 0*",
+       "action": "deny"
+      },
+      {
+       "permission": "task",
+       "pattern": "*",
+       "action": "deny"
+      },
+      {
+       "permission": "websearch",
+       "pattern": "*",
+       "action": "deny"
+      }
+     ],
+     "time": {
+      "created": 1791715992810,
+      "updated": 1791715992857
+     }
+    }
+   }
+  },
+  {
+   "id": "evt_12a98651a0015EdO5EpfCd1oEU",
+   "type": "session.diff",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "diff": []
+   }
+  },
+  {
+   "id": "evt_12a98671f001cint3CUH1W3Lcm",
+   "type": "session.status",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "status": {
+     "type": "busy"
+    }
+   }
+  },
+  {
+   "id": "evt_12a986749001YnKzv0g2U3WFW7",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "part": {
+     "id": "prt_12a986749001HAE12UxEX5x4cr",
+     "messageID": "msg_12a986510001HSBTUS7VNFBJto",
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "type": "step-start"
+    },
+    "time": 1791715993417
+   }
+  },
+  {
+   "id": "evt_12a98674b0015xzZpkKX0Ry4w9",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "part": {
+     "id": "prt_12a98674b001xx4ovXRHNN2KcE",
+     "messageID": "msg_12a986510001HSBTUS7VNFBJto",
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "type": "text",
+     "text": "",
+     "time": {
+      "start": 1791715993419
+     }
+    },
+    "time": 1791715993419
+   }
+  },
+  {
+   "id": "evt_12a98674c00183GLAYKktfmoJL",
+   "type": "message.part.delta",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "messageID": "msg_12a986510001HSBTUS7VNFBJto",
+    "partID": "prt_12a98674b001xx4ovXRHNN2KcE",
+    "field": "text",
+    "delta": "I'll make a short plan."
+   }
+  },
+  {
+   "id": "evt_12a98674d001T0P72VmmAYER1z",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "part": {
+     "id": "prt_12a98674d001rC22i8VnuUNGJk",
+     "messageID": "msg_12a986510001HSBTUS7VNFBJto",
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "type": "tool",
+     "tool": "todowrite",
+     "callID": "call_1_0",
+     "state": {
+      "status": "pending",
+      "input": {},
+      "raw": ""
+     }
+    },
+    "time": 1791715993421
+   }
+  },
+  {
+   "id": "evt_12a9867500015GlYz6NZ54QsJK",
+   "type": "todo.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "todos": [
+     {
+      "content": "Check disk space",
+      "status": "in_progress",
+      "priority": "high"
+     },
+     {
+      "content": "Clear old caches",
+      "status": "pending",
+      "priority": "medium"
+     }
+    ]
+   }
+  },
+  {
+   "id": "evt_12a986750002jVrEDLyyIlgsBz",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "part": {
+     "type": "tool",
+     "tool": "todowrite",
+     "callID": "call_1_0",
+     "state": {
+      "status": "running",
+      "input": {
+       "todos": [
+        {
+         "content": "Check disk space",
+         "status": "in_progress",
+         "priority": "high"
+        },
+        {
+         "content": "Clear old caches",
+         "status": "pending",
+         "priority": "medium"
+        }
+       ]
+      },
+      "time": {
+       "start": 1791715993424
+      }
+     },
+     "id": "prt_12a98674d001rC22i8VnuUNGJk",
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "messageID": "msg_12a986510001HSBTUS7VNFBJto"
+    },
+    "time": 1791715993424
+   }
+  },
+  {
+   "id": "evt_12a986752001kc8zW00aPFJt6A",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "part": {
+     "type": "tool",
+     "tool": "todowrite",
+     "callID": "call_1_0",
+     "state": {
+      "status": "completed",
+      "input": {
+       "todos": [
+        {
+         "content": "Check disk space",
+         "status": "in_progress",
+         "priority": "high"
+        },
+        {
+         "content": "Clear old caches",
+         "status": "pending",
+         "priority": "medium"
+        }
+       ]
+      },
+      "output": "[\n  {\n    \"content\": \"Check disk space\",\n    \"status\": \"in_progress\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Clear old caches\",\n    \"status\": \"pending\",\n    \"priority\": \"medium\"\n  }\n]",
+      "metadata": {
+       "todos": [
+        {
+         "content": "Check disk space",
+         "status": "in_progress",
+         "priority": "high"
+        },
+        {
+         "content": "Clear old caches",
+         "status": "pending",
+         "priority": "medium"
+        }
+       ],
+       "truncated": false
+      },
+      "title": "2 todos",
+      "time": {
+       "start": 1791715993424,
+       "end": 1791715993426
+      }
+     },
+     "id": "prt_12a98674d001rC22i8VnuUNGJk",
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "messageID": "msg_12a986510001HSBTUS7VNFBJto"
+    },
+    "time": 1791715993426
+   }
+  },
+  {
+   "id": "evt_12a986752002IsTYysHQej6LMD",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "part": {
+     "id": "prt_12a98674b001xx4ovXRHNN2KcE",
+     "messageID": "msg_12a986510001HSBTUS7VNFBJto",
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "type": "text",
+     "text": "I'll make a short plan.",
+     "time": {
+      "start": 1791715993419,
+      "end": 1791715993426
+     }
+    },
+    "time": 1791715993426
+   }
+  },
+  {
+   "id": "evt_12a986754001qBAL7mE4Cez1Yf",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "part": {
+     "id": "prt_12a986754001eptiNPABlzqkQs",
+     "reason": "tool-calls",
+     "messageID": "msg_12a986510001HSBTUS7VNFBJto",
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "type": "step-finish",
+     "tokens": {
+      "total": 120,
+      "input": 100,
+      "output": 20,
+      "reasoning": 0,
+      "cache": {
+       "write": 0,
+       "read": 0
+      }
+     },
+     "cost": 0
+    },
+    "time": 1791715993428
+   }
+  },
+  {
+   "id": "evt_12a986755001CGWNGsxKgL8wqj",
+   "type": "message.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "info": {
+     "id": "msg_12a986510001HSBTUS7VNFBJto",
+     "parentID": "msg_12a9864fe00172KX56UbDV2fmM",
+     "role": "assistant",
+     "mode": "fixer",
+     "agent": "fixer",
+     "path": {
+      "cwd": "/private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+      "root": "/"
+     },
+     "cost": 0,
+     "tokens": {
+      "total": 120,
+      "input": 100,
+      "output": 20,
+      "reasoning": 0,
+      "cache": {
+       "write": 0,
+       "read": 0
+      }
+     },
+     "modelID": "fml-fake",
+     "providerID": "opencode",
+     "time": {
+      "created": 1791715992848,
+      "completed": 1791715993430
+     },
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "finish": "tool-calls"
+    }
+   }
+  },
+  {
+   "id": "evt_12a986756001Q7E9wZI4ZT7P5R",
+   "type": "message.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "info": {
+     "id": "msg_12a986510001HSBTUS7VNFBJto",
+     "parentID": "msg_12a9864fe00172KX56UbDV2fmM",
+     "role": "assistant",
+     "mode": "fixer",
+     "agent": "fixer",
+     "path": {
+      "cwd": "/private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+      "root": "/"
+     },
+     "cost": 0,
+     "tokens": {
+      "total": 120,
+      "input": 100,
+      "output": 20,
+      "reasoning": 0,
+      "cache": {
+       "write": 0,
+       "read": 0
+      }
+     },
+     "modelID": "fml-fake",
+     "providerID": "opencode",
+     "time": {
+      "created": 1791715992848,
+      "completed": 1791715993430
+     },
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "finish": "tool-calls"
+    }
+   }
+  },
+  {
+   "id": "evt_12a9867570015fjMmJBmMxYqei",
+   "type": "session.status",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "status": {
+     "type": "busy"
+    }
+   }
+  },
+  {
+   "id": "evt_12a986757002ulOU4GmcwFqimI",
+   "type": "message.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "info": {
+     "id": "msg_12a9867570013Zn0lFujhj2qVI",
+     "parentID": "msg_12a9864fe00172KX56UbDV2fmM",
+     "role": "assistant",
+     "mode": "fixer",
+     "agent": "fixer",
+     "path": {
+      "cwd": "/private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+      "root": "/"
+     },
+     "cost": 0,
+     "tokens": {
+      "input": 0,
+      "output": 0,
+      "reasoning": 0,
+      "cache": {
+       "read": 0,
+       "write": 0
+      }
+     },
+     "modelID": "fml-fake",
+     "providerID": "opencode",
+     "time": {
+      "created": 1791715993431
+     },
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q"
+    }
+   }
+  },
+  {
+   "id": "evt_12a98675c001j8A2HbhaBYMBr4",
+   "type": "session.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "info": {
+     "id": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "slug": "kind-cactus",
+     "projectID": "global",
+     "directory": "/private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+     "path": "private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+     "title": "basic",
+     "agent": "fixer",
+     "model": {
+      "id": "fml-fake",
+      "providerID": "opencode",
+      "variant": "default"
+     },
+     "version": "1.19.0",
+     "summary": {
+      "additions": 0,
+      "deletions": 0,
+      "files": 0
+     },
+     "cost": 0,
+     "tokens": {
+      "input": 100,
+      "output": 20,
+      "reasoning": 0,
+      "cache": {
+       "read": 0,
+       "write": 0
+      }
+     },
+     "permission": [
+      {
+       "permission": "bash",
+       "pattern": "rm -rf /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf ~",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf ~/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr ~",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr ~/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf $HOME",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf $HOME/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm --no-preserve-root*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm * --no-preserve-root*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "mkfs*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "dd * of=/dev/*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "chmod -R 777 /*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "chown -R * /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "zsh",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh -s*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash -s*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh -",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash -",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": ":(){*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "shutdown*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "poweroff*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "halt*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "init 0*",
+       "action": "deny"
+      },
+      {
+       "permission": "task",
+       "pattern": "*",
+       "action": "deny"
+      },
+      {
+       "permission": "websearch",
+       "pattern": "*",
+       "action": "deny"
+      }
+     ],
+     "time": {
+      "created": 1791715992810,
+      "updated": 1791715993436
+     }
+    }
+   }
+  },
+  {
+   "id": "evt_12a98675d0018EE2uilcfY443l",
+   "type": "session.diff",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "diff": []
+   }
+  },
+  {
+   "id": "evt_12a986765001eQOJjQKszqJD2x",
+   "type": "session.status",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "status": {
+     "type": "busy"
+    }
+   }
+  },
+  {
+   "id": "evt_12a986769001ic4Hrgl5SH2MrH",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "part": {
+     "id": "prt_12a986769001OI5Ngwmj5YJv8F",
+     "messageID": "msg_12a9867570013Zn0lFujhj2qVI",
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "type": "step-start"
+    },
+    "time": 1791715993449
+   }
+  },
+  {
+   "id": "evt_12a98676a00154j1HO8qdnqlNJ",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "part": {
+     "id": "prt_12a98676a001tWcN2eLKNr3i9f",
+     "messageID": "msg_12a9867570013Zn0lFujhj2qVI",
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "type": "reasoning",
+     "text": "",
+     "time": {
+      "start": 1791715993450
+     }
+    },
+    "time": 1791715993450
+   }
+  },
+  {
+   "id": "evt_12a98676b001Q8iMEKS3pd3Afz",
+   "type": "message.part.delta",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "messageID": "msg_12a9867570013Zn0lFujhj2qVI",
+    "partID": "prt_12a98676a001tWcN2eLKNr3i9f",
+    "field": "text",
+    "delta": "Need df output first."
+   }
+  },
+  {
+   "id": "evt_12a98676b002KrLLOy5hh0MQ2J",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "part": {
+     "id": "prt_12a98676a001tWcN2eLKNr3i9f",
+     "messageID": "msg_12a9867570013Zn0lFujhj2qVI",
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "type": "reasoning",
+     "text": "Need df output first.",
+     "time": {
+      "start": 1791715993450,
+      "end": 1791715993451
+     }
+    },
+    "time": 1791715993451
+   }
+  },
+  {
+   "id": "evt_12a98676c001QOulZ3EvlZGBuS",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "part": {
+     "id": "prt_12a98676c001PwBBCXtFhNDjfG",
+     "messageID": "msg_12a9867570013Zn0lFujhj2qVI",
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "type": "text",
+     "text": "",
+     "time": {
+      "start": 1791715993452
+     }
+    },
+    "time": 1791715993452
+   }
+  },
+  {
+   "id": "evt_12a98676c0023te7SBaQeKLN6O",
+   "type": "message.part.delta",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "messageID": "msg_12a9867570013Zn0lFujhj2qVI",
+    "partID": "prt_12a98676c001PwBBCXtFhNDjfG",
+    "field": "text",
+    "delta": "I'll check how much spac"
+   }
+  },
+  {
+   "id": "evt_12a98676c00352Svs6yZ4XKMbX",
+   "type": "message.part.delta",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "messageID": "msg_12a9867570013Zn0lFujhj2qVI",
+    "partID": "prt_12a98676c001PwBBCXtFhNDjfG",
+    "field": "text",
+    "delta": "e is left on your disk."
+   }
+  },
+  {
+   "id": "evt_12a98676c004hRuZPVu4lP25oo",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "part": {
+     "id": "prt_12a98676c002fi5s8cJOUSRNo5",
+     "messageID": "msg_12a9867570013Zn0lFujhj2qVI",
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "type": "tool",
+     "tool": "bash",
+     "callID": "call_2_0",
+     "state": {
+      "status": "pending",
+      "input": {},
+      "raw": ""
+     }
+    },
+    "time": 1791715993452
+   }
+  },
+  {
+   "id": "evt_12a98676e001kr5aBfTihwgyUs",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "part": {
+     "type": "tool",
+     "tool": "bash",
+     "callID": "call_2_0",
+     "state": {
+      "status": "running",
+      "input": {
+       "command": "df -h"
+      },
+      "time": {
+       "start": 1791715993454
+      }
+     },
+     "id": "prt_12a98676c002fi5s8cJOUSRNo5",
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "messageID": "msg_12a9867570013Zn0lFujhj2qVI"
+    },
+    "time": 1791715993454
+   }
+  },
+  {
+   "id": "evt_12a98676f001TOqbOSVD4TrKnj",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "part": {
+     "id": "prt_12a98676c001PwBBCXtFhNDjfG",
+     "messageID": "msg_12a9867570013Zn0lFujhj2qVI",
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "type": "text",
+     "text": "I'll check how much space is left on your disk.",
+     "time": {
+      "start": 1791715993452,
+      "end": 1791715993455
+     }
+    },
+    "time": 1791715993455
+   }
+  },
+  {
+   "id": "evt_12a986788001Qn5gwcRUC10sNr",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "part": {
+     "type": "tool",
+     "tool": "bash",
+     "callID": "call_2_0",
+     "state": {
+      "metadata": {
+       "output": ""
+      },
+      "status": "running",
+      "input": {
+       "command": "df -h"
+      },
+      "time": {
+       "start": 1791715993454
+      }
+     },
+     "id": "prt_12a98676c002fi5s8cJOUSRNo5",
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "messageID": "msg_12a9867570013Zn0lFujhj2qVI"
+    },
+    "time": 1791715993480
+   }
+  },
+  {
+   "id": "evt_12a986796001euMKMBeRxoIIoO",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "part": {
+     "type": "tool",
+     "tool": "bash",
+     "callID": "call_2_0",
+     "state": {
+      "metadata": {
+       "output": "Filesystem        Size    Used   Avail Capacity iused ifree %iused  Mounted on\n/dev/disk3s1s1   228Gi    12Gi    73Gi    14%    459k  763M    0%   /\ndevfs            203Ki   203Ki     0Bi   100%     702     0  100%   /dev\n/dev/disk3s6     228Gi    11Gi    73Gi    14%      11  763M    0%   /System/Volumes/VM\n/dev/disk3s2     228Gi    10Gi    73Gi    13%    2.0k  763M    0%   /System/Volumes/Preboot\n/dev/disk3s4     228Gi   6.5Mi    73Gi     1%     136  763M    0%   /System/Volumes/Update\n/dev/disk1s2     500Mi   6.0Mi   483Mi     2%       1  4.9M    0%   /System/Volumes/xarts\n/dev/disk1s1     500Mi   6.0Mi   483Mi     2%      33  4.9M    0%   /System/Volumes/iSCPreboot\n/dev/disk1s3     500Mi   548Ki   483Mi     1%      74  4.9M    0%   /System/Volumes/Hardware\n/dev/disk3s5     228Gi   120Gi    73Gi    63%    1.9M  763M    0%   /System/Volumes/Data\nmap auto_home      0Bi     0Bi     0Bi   100%       0     0     -   /System/Volumes/Data/home\n"
+      },
+      "status": "running",
+      "input": {
+       "command": "df -h"
+      },
+      "time": {
+       "start": 1791715993454
+      }
+     },
+     "id": "prt_12a98676c002fi5s8cJOUSRNo5",
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "messageID": "msg_12a9867570013Zn0lFujhj2qVI"
+    },
+    "time": 1791715993494
+   }
+  },
+  {
+   "id": "evt_12a98679a001WjpvY0C0uMlKIV",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "part": {
+     "type": "tool",
+     "tool": "bash",
+     "callID": "call_2_0",
+     "state": {
+      "status": "completed",
+      "input": {
+       "command": "df -h"
+      },
+      "output": "Filesystem        Size    Used   Avail Capacity iused ifree %iused  Mounted on\n/dev/disk3s1s1   228Gi    12Gi    73Gi    14%    459k  763M    0%   /\ndevfs            203Ki   203Ki     0Bi   100%     702     0  100%   /dev\n/dev/disk3s6     228Gi    11Gi    73Gi    14%      11  763M    0%   /System/Volumes/VM\n/dev/disk3s2     228Gi    10Gi    73Gi    13%    2.0k  763M    0%   /System/Volumes/Preboot\n/dev/disk3s4     228Gi   6.5Mi    73Gi     1%     136  763M    0%   /System/Volumes/Update\n/dev/disk1s2     500Mi   6.0Mi   483Mi     2%       1  4.9M    0%   /System/Volumes/xarts\n/dev/disk1s1     500Mi   6.0Mi   483Mi     2%      33  4.9M    0%   /System/Volumes/iSCPreboot\n/dev/disk1s3     500Mi   548Ki   483Mi     1%      74  4.9M    0%   /System/Volumes/Hardware\n/dev/disk3s5     228Gi   120Gi    73Gi    63%    1.9M  763M    0%   /System/Volumes/Data\nmap auto_home      0Bi     0Bi     0Bi   100%       0     0     -   /System/Volumes/Data/home\n",
+      "metadata": {
+       "output": "Filesystem        Size    Used   Avail Capacity iused ifree %iused  Mounted on\n/dev/disk3s1s1   228Gi    12Gi    73Gi    14%    459k  763M    0%   /\ndevfs            203Ki   203Ki     0Bi   100%     702     0  100%   /dev\n/dev/disk3s6     228Gi    11Gi    73Gi    14%      11  763M    0%   /System/Volumes/VM\n/dev/disk3s2     228Gi    10Gi    73Gi    13%    2.0k  763M    0%   /System/Volumes/Preboot\n/dev/disk3s4     228Gi   6.5Mi    73Gi     1%     136  763M    0%   /System/Volumes/Update\n/dev/disk1s2     500Mi   6.0Mi   483Mi     2%       1  4.9M    0%   /System/Volumes/xarts\n/dev/disk1s1     500Mi   6.0Mi   483Mi     2%      33  4.9M    0%   /System/Volumes/iSCPreboot\n/dev/disk1s3     500Mi   548Ki   483Mi     1%      74  4.9M    0%   /System/Volumes/Hardware\n/dev/disk3s5     228Gi   120Gi    73Gi    63%    1.9M  763M    0%   /System/Volumes/Data\nmap auto_home      0Bi     0Bi     0Bi   100%       0     0     -   /System/Volumes/Data/home\n",
+       "exit": 0,
+       "truncated": false
+      },
+      "title": "df -h",
+      "time": {
+       "start": 1791715993454,
+       "end": 1791715993498
+      }
+     },
+     "id": "prt_12a98676c002fi5s8cJOUSRNo5",
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "messageID": "msg_12a9867570013Zn0lFujhj2qVI"
+    },
+    "time": 1791715993498
+   }
+  },
+  {
+   "id": "evt_12a98679c001Ndz9OgajkEDf3e",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "part": {
+     "id": "prt_12a98679c001GNGIlzjXIdmqqy",
+     "reason": "tool-calls",
+     "messageID": "msg_12a9867570013Zn0lFujhj2qVI",
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "type": "step-finish",
+     "tokens": {
+      "total": 120,
+      "input": 100,
+      "output": 20,
+      "reasoning": 0,
+      "cache": {
+       "write": 0,
+       "read": 0
+      }
+     },
+     "cost": 0
+    },
+    "time": 1791715993500
+   }
+  },
+  {
+   "id": "evt_12a98679c0022kWtXSKMCTJD4p",
+   "type": "message.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "info": {
+     "id": "msg_12a9867570013Zn0lFujhj2qVI",
+     "parentID": "msg_12a9864fe00172KX56UbDV2fmM",
+     "role": "assistant",
+     "mode": "fixer",
+     "agent": "fixer",
+     "path": {
+      "cwd": "/private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+      "root": "/"
+     },
+     "cost": 0,
+     "tokens": {
+      "total": 120,
+      "input": 100,
+      "output": 20,
+      "reasoning": 0,
+      "cache": {
+       "write": 0,
+       "read": 0
+      }
+     },
+     "modelID": "fml-fake",
+     "providerID": "opencode",
+     "time": {
+      "created": 1791715993431,
+      "completed": 1791715993501
+     },
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "finish": "tool-calls"
+    }
+   }
+  },
+  {
+   "id": "evt_12a98679d001Ai48oK9Ya9hDyy",
+   "type": "message.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "info": {
+     "id": "msg_12a9867570013Zn0lFujhj2qVI",
+     "parentID": "msg_12a9864fe00172KX56UbDV2fmM",
+     "role": "assistant",
+     "mode": "fixer",
+     "agent": "fixer",
+     "path": {
+      "cwd": "/private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+      "root": "/"
+     },
+     "cost": 0,
+     "tokens": {
+      "total": 120,
+      "input": 100,
+      "output": 20,
+      "reasoning": 0,
+      "cache": {
+       "write": 0,
+       "read": 0
+      }
+     },
+     "modelID": "fml-fake",
+     "providerID": "opencode",
+     "time": {
+      "created": 1791715993431,
+      "completed": 1791715993501
+     },
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "finish": "tool-calls"
+    }
+   }
+  },
+  {
+   "id": "evt_12a98679e001AOwsdUDC0NV29l",
+   "type": "session.status",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "status": {
+     "type": "busy"
+    }
+   }
+  },
+  {
+   "id": "evt_12a98679f001rNXp1L8qDDjDSP",
+   "type": "message.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "info": {
+     "id": "msg_12a98679f001knamvxUCFk5luz",
+     "parentID": "msg_12a9864fe00172KX56UbDV2fmM",
+     "role": "assistant",
+     "mode": "fixer",
+     "agent": "fixer",
+     "path": {
+      "cwd": "/private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+      "root": "/"
+     },
+     "cost": 0,
+     "tokens": {
+      "input": 0,
+      "output": 0,
+      "reasoning": 0,
+      "cache": {
+       "read": 0,
+       "write": 0
+      }
+     },
+     "modelID": "fml-fake",
+     "providerID": "opencode",
+     "time": {
+      "created": 1791715993503
+     },
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q"
+    }
+   }
+  },
+  {
+   "id": "evt_12a9867a0001rDom61rnL6z0jf",
+   "type": "session.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "info": {
+     "id": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "slug": "kind-cactus",
+     "projectID": "global",
+     "directory": "/private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+     "path": "private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+     "title": "basic",
+     "agent": "fixer",
+     "model": {
+      "id": "fml-fake",
+      "providerID": "opencode",
+      "variant": "default"
+     },
+     "version": "1.19.0",
+     "summary": {
+      "additions": 0,
+      "deletions": 0,
+      "files": 0
+     },
+     "cost": 0,
+     "tokens": {
+      "input": 200,
+      "output": 40,
+      "reasoning": 0,
+      "cache": {
+       "read": 0,
+       "write": 0
+      }
+     },
+     "permission": [
+      {
+       "permission": "bash",
+       "pattern": "rm -rf /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf ~",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf ~/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr ~",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr ~/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf $HOME",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf $HOME/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm --no-preserve-root*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm * --no-preserve-root*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "mkfs*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "dd * of=/dev/*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "chmod -R 777 /*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "chown -R * /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "zsh",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh -s*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash -s*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh -",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash -",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": ":(){*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "shutdown*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "poweroff*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "halt*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "init 0*",
+       "action": "deny"
+      },
+      {
+       "permission": "task",
+       "pattern": "*",
+       "action": "deny"
+      },
+      {
+       "permission": "websearch",
+       "pattern": "*",
+       "action": "deny"
+      }
+     ],
+     "time": {
+      "created": 1791715992810,
+      "updated": 1791715993504
+     }
+    }
+   }
+  },
+  {
+   "id": "evt_12a9867a1001wUhbe2NB1dR5hq",
+   "type": "session.diff",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "diff": []
+   }
+  },
+  {
+   "id": "evt_12a9867a1002LBzrgDgbxd32Nm",
+   "type": "session.status",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "status": {
+     "type": "busy"
+    }
+   }
+  },
+  {
+   "id": "evt_12a9867b2001omdcM3WQu6XkRG",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "part": {
+     "id": "prt_12a9867b2001zqGOK8oltX4nv1",
+     "messageID": "msg_12a98679f001knamvxUCFk5luz",
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "type": "step-start"
+    },
+    "time": 1791715993522
+   }
+  },
+  {
+   "id": "evt_12a9867b3001f0bmQ9to7QeKkf",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "part": {
+     "id": "prt_12a9867b3001MEHlrmiSvwrfl3",
+     "messageID": "msg_12a98679f001knamvxUCFk5luz",
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "type": "text",
+     "text": "",
+     "time": {
+      "start": 1791715993523
+     }
+    },
+    "time": 1791715993523
+   }
+  },
+  {
+   "id": "evt_12a9867b3002xKrqDQ2uvj6lgp",
+   "type": "message.part.delta",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "messageID": "msg_12a98679f001knamvxUCFk5luz",
+    "partID": "prt_12a9867b3001MEHlrmiSvwrfl3",
+    "field": "text",
+    "delta": "Your disk is 93% full. T"
+   }
+  },
+  {
+   "id": "evt_12a9867b3003oM10KrgxYsp5Qk",
+   "type": "message.part.delta",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "messageID": "msg_12a98679f001knamvxUCFk5luz",
+    "partID": "prt_12a9867b3001MEHlrmiSvwrfl3",
+    "field": "text",
+    "delta": "he biggest folder is you"
+   }
+  },
+  {
+   "id": "evt_12a9867b3004cRSoLMFE8T0K2t",
+   "type": "message.part.delta",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "messageID": "msg_12a98679f001knamvxUCFk5luz",
+    "partID": "prt_12a9867b3001MEHlrmiSvwrfl3",
+    "field": "text",
+    "delta": "r Downloads."
+   }
+  },
+  {
+   "id": "evt_12a9867b4001sKGL7JfzIhrIAw",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "part": {
+     "id": "prt_12a9867b3001MEHlrmiSvwrfl3",
+     "messageID": "msg_12a98679f001knamvxUCFk5luz",
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "type": "text",
+     "text": "Your disk is 93% full. The biggest folder is your Downloads.",
+     "time": {
+      "start": 1791715993523,
+      "end": 1791715993523
+     }
+    },
+    "time": 1791715993524
+   }
+  },
+  {
+   "id": "evt_12a9867b40023MvuinViR6rWfo",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "part": {
+     "id": "prt_12a9867b4001gG0byUbTvA69cp",
+     "reason": "stop",
+     "messageID": "msg_12a98679f001knamvxUCFk5luz",
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "type": "step-finish",
+     "tokens": {
+      "total": 120,
+      "input": 100,
+      "output": 20,
+      "reasoning": 0,
+      "cache": {
+       "write": 0,
+       "read": 0
+      }
+     },
+     "cost": 0
+    },
+    "time": 1791715993524
+   }
+  },
+  {
+   "id": "evt_12a9867b5001iNnpV9Hdh5GkMC",
+   "type": "message.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "info": {
+     "id": "msg_12a98679f001knamvxUCFk5luz",
+     "parentID": "msg_12a9864fe00172KX56UbDV2fmM",
+     "role": "assistant",
+     "mode": "fixer",
+     "agent": "fixer",
+     "path": {
+      "cwd": "/private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+      "root": "/"
+     },
+     "cost": 0,
+     "tokens": {
+      "total": 120,
+      "input": 100,
+      "output": 20,
+      "reasoning": 0,
+      "cache": {
+       "write": 0,
+       "read": 0
+      }
+     },
+     "modelID": "fml-fake",
+     "providerID": "opencode",
+     "time": {
+      "created": 1791715993503,
+      "completed": 1791715993526
+     },
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "finish": "stop"
+    }
+   }
+  },
+  {
+   "id": "evt_12a9867b6001IX2o3Bec1K58Qr",
+   "type": "message.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "info": {
+     "id": "msg_12a98679f001knamvxUCFk5luz",
+     "parentID": "msg_12a9864fe00172KX56UbDV2fmM",
+     "role": "assistant",
+     "mode": "fixer",
+     "agent": "fixer",
+     "path": {
+      "cwd": "/private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+      "root": "/"
+     },
+     "cost": 0,
+     "tokens": {
+      "total": 120,
+      "input": 100,
+      "output": 20,
+      "reasoning": 0,
+      "cache": {
+       "write": 0,
+       "read": 0
+      }
+     },
+     "modelID": "fml-fake",
+     "providerID": "opencode",
+     "time": {
+      "created": 1791715993503,
+      "completed": 1791715993526
+     },
+     "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "finish": "stop"
+    }
+   }
+  },
+  {
+   "id": "evt_12a9867b6002nBw7kHs3kBHQAK",
+   "type": "session.status",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "status": {
+     "type": "busy"
+    }
+   }
+  },
+  {
+   "id": "evt_12a9867b7001Gt9zX3KW8iAIHE",
+   "type": "session.status",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "status": {
+     "type": "idle"
+    }
+   }
+  },
+  {
+   "id": "evt_12a9867b7002BSZMrFqkoMG8Aj",
+   "type": "session.idle",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q"
+   }
+  },
+  {
+   "id": "evt_12a9867b7003kNg3AWWXIT7hrs",
+   "type": "session.updated",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "info": {
+     "id": "ses_ed5679b15ffellERYq82MkZQ6q",
+     "slug": "kind-cactus",
+     "projectID": "global",
+     "directory": "/private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+     "path": "private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+     "title": "basic",
+     "agent": "fixer",
+     "model": {
+      "id": "fml-fake",
+      "providerID": "opencode",
+      "variant": "default"
+     },
+     "version": "1.19.0",
+     "summary": {
+      "additions": 0,
+      "deletions": 0,
+      "files": 0
+     },
+     "cost": 0,
+     "tokens": {
+      "input": 300,
+      "output": 60,
+      "reasoning": 0,
+      "cache": {
+       "read": 0,
+       "write": 0
+      }
+     },
+     "permission": [
+      {
+       "permission": "bash",
+       "pattern": "rm -rf /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf ~",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf ~/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr ~",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr ~/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf $HOME",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf $HOME/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm --no-preserve-root*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm * --no-preserve-root*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "mkfs*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "dd * of=/dev/*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "chmod -R 777 /*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "chown -R * /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "zsh",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh -s*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash -s*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh -",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash -",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": ":(){*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "shutdown*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "poweroff*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "halt*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "init 0*",
+       "action": "deny"
+      },
+      {
+       "permission": "task",
+       "pattern": "*",
+       "action": "deny"
+      },
+      {
+       "permission": "websearch",
+       "pattern": "*",
+       "action": "deny"
+      }
+     ],
+     "time": {
+      "created": 1791715992810,
+      "updated": 1791715993527
+     }
+    }
+   }
+  },
+  {
+   "id": "evt_12a9867b8001W09NTVHiloKUd3",
+   "type": "session.diff",
+   "properties": {
+    "sessionID": "ses_ed5679b15ffellERYq82MkZQ6q",
+    "diff": []
+   }
+  }
+ ]
+}

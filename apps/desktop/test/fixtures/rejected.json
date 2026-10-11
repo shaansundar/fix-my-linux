@@ -1,0 +1,1115 @@
+{
+ "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+ "events": [
+  {
+   "id": "evt_12a986c3c001tCPkKluTTvWeJO",
+   "type": "session.updated",
+   "properties": {
+    "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+    "info": {
+     "id": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+     "slug": "clever-tiger",
+     "projectID": "global",
+     "directory": "/private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+     "path": "private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+     "title": "rejected",
+     "agent": "fixer",
+     "model": {
+      "id": "fml-fake",
+      "providerID": "opencode",
+      "variant": "default"
+     },
+     "version": "1.19.0",
+     "cost": 0,
+     "tokens": {
+      "input": 0,
+      "output": 0,
+      "reasoning": 0,
+      "cache": {
+       "read": 0,
+       "write": 0
+      }
+     },
+     "permission": [
+      {
+       "permission": "bash",
+       "pattern": "rm -rf /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf ~",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf ~/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr ~",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr ~/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf $HOME",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf $HOME/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm --no-preserve-root*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm * --no-preserve-root*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "mkfs*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "dd * of=/dev/*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "chmod -R 777 /*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "chown -R * /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "zsh",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh -s*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash -s*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh -",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash -",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": ":(){*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "shutdown*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "poweroff*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "halt*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "init 0*",
+       "action": "deny"
+      },
+      {
+       "permission": "task",
+       "pattern": "*",
+       "action": "deny"
+      },
+      {
+       "permission": "websearch",
+       "pattern": "*",
+       "action": "deny"
+      }
+     ],
+     "time": {
+      "created": 1791715994663,
+      "updated": 1791715994683
+     }
+    }
+   }
+  },
+  {
+   "id": "evt_12a986c42001dDiL5LVIya02q1",
+   "type": "message.updated",
+   "properties": {
+    "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+    "info": {
+     "id": "msg_12a986c3b001cEFTHAKhhpObHr",
+     "role": "user",
+     "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+     "time": {
+      "created": 1791715994683
+     },
+     "agent": "fixer",
+     "model": {
+      "providerID": "opencode",
+      "modelID": "fml-fake"
+     }
+    }
+   }
+  },
+  {
+   "id": "evt_12a986c48001XOpdvUX3PRwPo7",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+    "part": {
+     "type": "text",
+     "text": "remove libreoffice",
+     "messageID": "msg_12a986c3b001cEFTHAKhhpObHr",
+     "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+     "id": "prt_12a986c41001bV5CiZeBL4MIYR"
+    },
+    "time": 1791715994696
+   }
+  },
+  {
+   "id": "evt_12a986c4a001DNVbJLQwPHIU0l",
+   "type": "session.updated",
+   "properties": {
+    "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+    "info": {
+     "id": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+     "slug": "clever-tiger",
+     "projectID": "global",
+     "directory": "/private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+     "path": "private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+     "title": "rejected",
+     "agent": "fixer",
+     "model": {
+      "id": "fml-fake",
+      "providerID": "opencode",
+      "variant": "default"
+     },
+     "version": "1.19.0",
+     "cost": 0,
+     "tokens": {
+      "input": 0,
+      "output": 0,
+      "reasoning": 0,
+      "cache": {
+       "read": 0,
+       "write": 0
+      }
+     },
+     "permission": [
+      {
+       "permission": "bash",
+       "pattern": "rm -rf /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf ~",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf ~/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr ~",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr ~/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf $HOME",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf $HOME/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm --no-preserve-root*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm * --no-preserve-root*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "mkfs*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "dd * of=/dev/*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "chmod -R 777 /*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "chown -R * /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "zsh",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh -s*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash -s*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh -",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash -",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": ":(){*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "shutdown*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "poweroff*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "halt*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "init 0*",
+       "action": "deny"
+      },
+      {
+       "permission": "task",
+       "pattern": "*",
+       "action": "deny"
+      },
+      {
+       "permission": "websearch",
+       "pattern": "*",
+       "action": "deny"
+      }
+     ],
+     "time": {
+      "created": 1791715994663,
+      "updated": 1791715994698
+     }
+    }
+   }
+  },
+  {
+   "id": "evt_12a986c500012iGfX72dPlqyZ8",
+   "type": "session.status",
+   "properties": {
+    "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+    "status": {
+     "type": "busy"
+    }
+   }
+  },
+  {
+   "id": "evt_12a986c51001V464w5CaK2S2HW",
+   "type": "message.updated",
+   "properties": {
+    "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+    "info": {
+     "id": "msg_12a986c51001nov2KUcFEY4VAA",
+     "parentID": "msg_12a986c3b001cEFTHAKhhpObHr",
+     "role": "assistant",
+     "mode": "fixer",
+     "agent": "fixer",
+     "path": {
+      "cwd": "/private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+      "root": "/"
+     },
+     "cost": 0,
+     "tokens": {
+      "input": 0,
+      "output": 0,
+      "reasoning": 0,
+      "cache": {
+       "read": 0,
+       "write": 0
+      }
+     },
+     "modelID": "fml-fake",
+     "providerID": "opencode",
+     "time": {
+      "created": 1791715994705
+     },
+     "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M"
+    }
+   }
+  },
+  {
+   "id": "evt_12a986c5a001pL3725NCCjHl3F",
+   "type": "session.status",
+   "properties": {
+    "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+    "status": {
+     "type": "busy"
+    }
+   }
+  },
+  {
+   "id": "evt_12a986c5b0010mWXUAm4CWeOHH",
+   "type": "session.updated",
+   "properties": {
+    "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+    "info": {
+     "id": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+     "slug": "clever-tiger",
+     "projectID": "global",
+     "directory": "/private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+     "path": "private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+     "title": "rejected",
+     "agent": "fixer",
+     "model": {
+      "id": "fml-fake",
+      "providerID": "opencode",
+      "variant": "default"
+     },
+     "version": "1.19.0",
+     "summary": {
+      "additions": 0,
+      "deletions": 0,
+      "files": 0
+     },
+     "cost": 0,
+     "tokens": {
+      "input": 0,
+      "output": 0,
+      "reasoning": 0,
+      "cache": {
+       "read": 0,
+       "write": 0
+      }
+     },
+     "permission": [
+      {
+       "permission": "bash",
+       "pattern": "rm -rf /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf ~",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf ~/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr ~",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr ~/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf $HOME",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf $HOME/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm --no-preserve-root*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm * --no-preserve-root*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "mkfs*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "dd * of=/dev/*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "chmod -R 777 /*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "chown -R * /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "zsh",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh -s*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash -s*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh -",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash -",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": ":(){*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "shutdown*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "poweroff*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "halt*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "init 0*",
+       "action": "deny"
+      },
+      {
+       "permission": "task",
+       "pattern": "*",
+       "action": "deny"
+      },
+      {
+       "permission": "websearch",
+       "pattern": "*",
+       "action": "deny"
+      }
+     ],
+     "time": {
+      "created": 1791715994663,
+      "updated": 1791715994715
+     }
+    }
+   }
+  },
+  {
+   "id": "evt_12a986c5d001XJjct9C7a75Jhr",
+   "type": "session.diff",
+   "properties": {
+    "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+    "diff": []
+   }
+  },
+  {
+   "id": "evt_12a986c6200144ZWG2Z41c3rcM",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+    "part": {
+     "id": "prt_12a986c61001Y3pXB0Q3fitT57",
+     "messageID": "msg_12a986c51001nov2KUcFEY4VAA",
+     "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+     "type": "step-start"
+    },
+    "time": 1791715994722
+   }
+  },
+  {
+   "id": "evt_12a986c63001ZLXYGSfyFGsXvg",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+    "part": {
+     "id": "prt_12a986c63001nWM4doH5Jk0GLF",
+     "messageID": "msg_12a986c51001nov2KUcFEY4VAA",
+     "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+     "type": "text",
+     "text": "",
+     "time": {
+      "start": 1791715994723
+     }
+    },
+    "time": 1791715994723
+   }
+  },
+  {
+   "id": "evt_12a986c64001bAeYRPo6B1KXpA",
+   "type": "message.part.delta",
+   "properties": {
+    "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+    "messageID": "msg_12a986c51001nov2KUcFEY4VAA",
+    "partID": "prt_12a986c63001nWM4doH5Jk0GLF",
+    "field": "text",
+    "delta": "I'll remove LibreOffice."
+   }
+  },
+  {
+   "id": "evt_12a986c640026Pt18x0PZorwg9",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+    "part": {
+     "id": "prt_12a986c64001wf21IhX5050dyr",
+     "messageID": "msg_12a986c51001nov2KUcFEY4VAA",
+     "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+     "type": "tool",
+     "tool": "bash",
+     "callID": "call_8_0",
+     "state": {
+      "status": "pending",
+      "input": {},
+      "raw": ""
+     }
+    },
+    "time": 1791715994724
+   }
+  },
+  {
+   "id": "evt_12a986c660028e3r80zjOu1yHF",
+   "type": "permission.asked",
+   "properties": {
+    "id": "per_12a986c66001aEwWoBsZq8RaAr",
+    "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+    "permission": "bash",
+    "patterns": [
+     "apt remove libreoffice"
+    ],
+    "metadata": {
+     "command": "apt remove libreoffice"
+    },
+    "always": [
+     "apt *"
+    ],
+    "tool": {
+     "messageID": "msg_12a986c51001nov2KUcFEY4VAA",
+     "callID": "call_8_0"
+    }
+   }
+  },
+  {
+   "id": "evt_12a986c67001yoOHX6ujntKY1F",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+    "part": {
+     "type": "tool",
+     "tool": "bash",
+     "callID": "call_8_0",
+     "state": {
+      "status": "running",
+      "input": {
+       "command": "apt remove libreoffice"
+      },
+      "time": {
+       "start": 1791715994727
+      }
+     },
+     "id": "prt_12a986c64001wf21IhX5050dyr",
+     "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+     "messageID": "msg_12a986c51001nov2KUcFEY4VAA"
+    },
+    "time": 1791715994727
+   }
+  },
+  {
+   "id": "evt_12a986c680013jgzbsyDMFzx04",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+    "part": {
+     "id": "prt_12a986c63001nWM4doH5Jk0GLF",
+     "messageID": "msg_12a986c51001nov2KUcFEY4VAA",
+     "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+     "type": "text",
+     "text": "I'll remove LibreOffice.",
+     "time": {
+      "start": 1791715994723,
+      "end": 1791715994728
+     }
+    },
+    "time": 1791715994728
+   }
+  },
+  {
+   "id": "evt_12a986c6f001GmjdQWsL5oRTnc",
+   "type": "permission.replied",
+   "properties": {
+    "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+    "requestID": "per_12a986c66001aEwWoBsZq8RaAr",
+    "reply": "reject"
+   }
+  },
+  {
+   "id": "evt_12a986c71001nnpHZi2oI6WnVL",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+    "part": {
+     "type": "tool",
+     "tool": "bash",
+     "callID": "call_8_0",
+     "state": {
+      "status": "error",
+      "input": {
+       "command": "apt remove libreoffice"
+      },
+      "error": "The user rejected permission to use this specific tool call.",
+      "time": {
+       "start": 1791715994727,
+       "end": 1791715994736
+      }
+     },
+     "id": "prt_12a986c64001wf21IhX5050dyr",
+     "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+     "messageID": "msg_12a986c51001nov2KUcFEY4VAA"
+    },
+    "time": 1791715994737
+   }
+  },
+  {
+   "id": "evt_12a986c72001Wlb4sXYkzvL095",
+   "type": "message.part.updated",
+   "properties": {
+    "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+    "part": {
+     "id": "prt_12a986c710014YV5U900AXXnCI",
+     "reason": "tool-calls",
+     "messageID": "msg_12a986c51001nov2KUcFEY4VAA",
+     "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+     "type": "step-finish",
+     "tokens": {
+      "total": 120,
+      "input": 100,
+      "output": 20,
+      "reasoning": 0,
+      "cache": {
+       "write": 0,
+       "read": 0
+      }
+     },
+     "cost": 0
+    },
+    "time": 1791715994738
+   }
+  },
+  {
+   "id": "evt_12a986c73001vulBb1qpw8TT21",
+   "type": "message.updated",
+   "properties": {
+    "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+    "info": {
+     "id": "msg_12a986c51001nov2KUcFEY4VAA",
+     "parentID": "msg_12a986c3b001cEFTHAKhhpObHr",
+     "role": "assistant",
+     "mode": "fixer",
+     "agent": "fixer",
+     "path": {
+      "cwd": "/private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+      "root": "/"
+     },
+     "cost": 0,
+     "tokens": {
+      "total": 120,
+      "input": 100,
+      "output": 20,
+      "reasoning": 0,
+      "cache": {
+       "write": 0,
+       "read": 0
+      }
+     },
+     "modelID": "fml-fake",
+     "providerID": "opencode",
+     "time": {
+      "created": 1791715994705,
+      "completed": 1791715994740
+     },
+     "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+     "finish": "tool-calls"
+    }
+   }
+  },
+  {
+   "id": "evt_12a986c74001YzaPQQ2NBn08Tq",
+   "type": "message.updated",
+   "properties": {
+    "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+    "info": {
+     "id": "msg_12a986c51001nov2KUcFEY4VAA",
+     "parentID": "msg_12a986c3b001cEFTHAKhhpObHr",
+     "role": "assistant",
+     "mode": "fixer",
+     "agent": "fixer",
+     "path": {
+      "cwd": "/private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+      "root": "/"
+     },
+     "cost": 0,
+     "tokens": {
+      "total": 120,
+      "input": 100,
+      "output": 20,
+      "reasoning": 0,
+      "cache": {
+       "write": 0,
+       "read": 0
+      }
+     },
+     "modelID": "fml-fake",
+     "providerID": "opencode",
+     "time": {
+      "created": 1791715994705,
+      "completed": 1791715994740
+     },
+     "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+     "finish": "tool-calls"
+    }
+   }
+  },
+  {
+   "id": "evt_12a986c770011VEC6GxsiJhdAy",
+   "type": "session.status",
+   "properties": {
+    "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+    "status": {
+     "type": "idle"
+    }
+   }
+  },
+  {
+   "id": "evt_12a986c77002IIyNk0rwJyvQE0",
+   "type": "session.idle",
+   "properties": {
+    "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M"
+   }
+  },
+  {
+   "id": "evt_12a986c78001qAV7jQQ3DO5iI1",
+   "type": "session.updated",
+   "properties": {
+    "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+    "info": {
+     "id": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+     "slug": "clever-tiger",
+     "projectID": "global",
+     "directory": "/private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+     "path": "private/var/folders/j5/tsfhd2nj5wq4gtqcr44m9vxh0000gn/T/fml-it-27OV2c",
+     "title": "rejected",
+     "agent": "fixer",
+     "model": {
+      "id": "fml-fake",
+      "providerID": "opencode",
+      "variant": "default"
+     },
+     "version": "1.19.0",
+     "summary": {
+      "additions": 0,
+      "deletions": 0,
+      "files": 0
+     },
+     "cost": 0,
+     "tokens": {
+      "input": 100,
+      "output": 20,
+      "reasoning": 0,
+      "cache": {
+       "read": 0,
+       "write": 0
+      }
+     },
+     "permission": [
+      {
+       "permission": "bash",
+       "pattern": "rm -rf /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf ~",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf ~/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr ~",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -fr ~/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf $HOME",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm -rf $HOME/",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm --no-preserve-root*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "rm * --no-preserve-root*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "mkfs*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "dd * of=/dev/*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "chmod -R 777 /*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "chown -R * /",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "zsh",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh -s*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash -s*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "sh -",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "bash -",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": ":(){*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "shutdown*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "poweroff*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "halt*",
+       "action": "deny"
+      },
+      {
+       "permission": "bash",
+       "pattern": "init 0*",
+       "action": "deny"
+      },
+      {
+       "permission": "task",
+       "pattern": "*",
+       "action": "deny"
+      },
+      {
+       "permission": "websearch",
+       "pattern": "*",
+       "action": "deny"
+      }
+     ],
+     "time": {
+      "created": 1791715994663,
+      "updated": 1791715994743
+     }
+    }
+   }
+  },
+  {
+   "id": "evt_12a986c78002E39kg4A28jubyS",
+   "type": "session.diff",
+   "properties": {
+    "sessionID": "ses_ed56793d8ffe6Hfti9lROAgR5M",
+    "diff": []
+   }
+  }
+ ]
+}
