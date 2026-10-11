@@ -1,6 +1,7 @@
 import { ipcMain, type BrowserWindow, type IpcMainInvokeEvent } from "electron";
 import type { ApprovalDecision } from "../shared/approvals";
 import { CH } from "../shared/ipc";
+import type { AccountState } from "../shared/account";
 import type { EngineState } from "../shared/ipc";
 import type { Engine } from "./engine";
 
@@ -19,7 +20,19 @@ function str(v: unknown, name: string, max = 20000): string {
   return v;
 }
 
-export function registerIpc(win: () => BrowserWindow | null, engine: () => Engine | null, actions: { restart(): Promise<void>; state(): EngineState }): void {
+export function registerIpc(win: () => BrowserWindow | null, engine: () => Engine | null, actions: {
+    restart(): Promise<void>;
+    state(): EngineState;
+    account: {
+      state(): AccountState;
+      start(email: string): Promise<void>;
+      verify(email: string, code: string): Promise<void>;
+      subscribe(): Promise<void>;
+      manage(): Promise<void>;
+      refresh(): Promise<void>;
+      signOut(): Promise<void>;
+    };
+  }): void {
   const handle = (channel: string, fn: (...args: unknown[]) => unknown) => {
     ipcMain.handle(channel, async (event, ...args) => {
       const w = win();
@@ -58,6 +71,14 @@ export function registerIpc(win: () => BrowserWindow | null, engine: () => Engin
     return need().replyQuestion(str(id, "question"), answers as string[][]);
   });
   handle(CH.questionReject, (id) => need().rejectQuestion(str(id, "question")));
+
+  handle(CH.accountState, () => actions.account.state());
+  handle(CH.accountStart, (email) => actions.account.start(str(email, "email", 254)));
+  handle(CH.accountVerify, (email, code) => actions.account.verify(str(email, "email", 254), str(code, "code", 12)));
+  handle(CH.accountSubscribe, () => actions.account.subscribe());
+  handle(CH.accountManage, () => actions.account.manage());
+  handle(CH.accountRefresh, () => actions.account.refresh());
+  handle(CH.accountSignOut, () => actions.account.signOut());
 
   handle(CH.passwordList, () => engine()?.passwords() ?? []);
   handle(CH.passwordAnswer, (id, password) => {

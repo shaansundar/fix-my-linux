@@ -41,6 +41,16 @@ const api: FmlApi = {
   notices: {
     onBlocked: (cb) => on(CH.blocked, cb),
   },
+  account: {
+    state: () => ipcRenderer.invoke(CH.accountState),
+    onChange: (cb) => on(CH.accountChange, cb),
+    startSignIn: (email) => ipcRenderer.invoke(CH.accountStart, email),
+    verify: (email, code) => ipcRenderer.invoke(CH.accountVerify, email, code),
+    subscribe: () => ipcRenderer.invoke(CH.accountSubscribe),
+    manage: () => ipcRenderer.invoke(CH.accountManage),
+    refresh: () => ipcRenderer.invoke(CH.accountRefresh),
+    signOut: () => ipcRenderer.invoke(CH.accountSignOut),
+  },
   password: {
     list: () => ipcRenderer.invoke(CH.passwordList),
     answer: (id, password) => ipcRenderer.invoke(CH.passwordAnswer, id, password),

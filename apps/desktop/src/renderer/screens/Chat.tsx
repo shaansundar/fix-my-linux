@@ -8,6 +8,7 @@ import TaskRows from "@/components/bui/TaskRows";
 import ThinkingState from "@/components/bui/ThinkingState";
 import ToolChips from "@/components/bui/ToolChips";
 import { CommandApproval } from "@/components/fml/CommandApproval";
+import { PlanNotice, planNoticeKind } from "@/components/fml/PlanNotice";
 import { taskRows, toolStep, toolsHeader, visibleTools } from "@/lib/view";
 import { store, useApp } from "@/state/store";
 import type { Item, Message, PendingQuestion, ReasoningItem, SessionView, TextItem, ToolItem } from "../../shared/session";
@@ -127,10 +128,19 @@ function Question({ q }: { q: PendingQuestion }) {
   );
 }
 
+/** Errors the plan card already explains in plain words. */
+const PLAN_ERROR = /free trial|subscribe|allowance|free limit|payment|sign in/i;
+
 function Transcript({ session }: { session: SessionView }) {
   const approvals = useApp((s) => s.approvals);
+  const planShown = useApp((s) => planNoticeKind(s.account.account, s.notice) !== null);
   const mine = approvals.filter((a) => a.sessionID === session.id);
-  const list = blocks(session.messages);
+  const list = blocks(session.messages).filter((b) => !(b.kind === "error" && planShown && PLAN_ERROR.test(b.text)));
+  const lastError = [...list].reverse().find((b) => b.kind === "error");
+  const sessionError =
+    session.error && !(planShown && PLAN_ERROR.test(session.error)) && !(lastError?.kind === "error" && lastError.text === session.error)
+      ? session.error
+      : null;
   const lastBlock = list.at(-1);
   const busy = session.status !== "idle";
   const waiting = busy && mine.length === 0 && session.questions.length === 0 && lastBlock?.kind !== "text";
@@ -187,12 +197,33 @@ function Transcript({ session }: { session: SessionView }) {
       {session.questions.map((q) => (
         <Question key={q.id} q={q} />
       ))}
-      {session.error && !busy && (
+      {sessionError && !busy && (
         <div className="flex items-center justify-between gap-3 rounded-card bg-red-tint px-3 py-2 text-[13px] text-red">
-          <span>{session.error}</span>
+          <span>{sessionError}</span>
         </div>
       )}
     </div>
+  );
+}
+
+/** The paywall or allowance card, when one applies. */
+function Plan() {
+  const account = useApp((s) => s.account.account);
+  const notice = useApp((s) => s.notice);
+  const { subscribe, manage, refreshAccount, dismissNotice } = store().actions;
+  if (!planNoticeKind(account, notice)) return null;
+  return (
+    <PlanNotice
+      account={account}
+      notice={notice}
+      onSubscribe={() => void subscribe()}
+      onManage={() => void manage()}
+      onCheckAgain={() => {
+        dismissNotice();
+        void refreshAccount();
+      }}
+      onDismiss={dismissNotice}
+    />
   );
 }
 
@@ -200,6 +231,10 @@ function Composer({ busy, tall, onSend }: { busy: boolean; tall?: boolean; onSen
   const models = useApp((s) => s.models);
   const model = useApp((s) => s.model);
   const engine = useApp((s) => s.engine);
+  const blocked = useApp((s) => {
+    const kind = planNoticeKind(s.account.account, s.notice);
+    return kind === "paywall" || kind === "payment";
+  });
   const { setModel, stop } = store().actions;
   const pickerModels: PromptModel[] = models.map((m) => ({
     key: m.id,
@@ -221,7 +256,7 @@ function Composer({ busy, tall, onSend }: { busy: boolean; tall?: boolean; onSen
       dictation={false}
       busy={busy}
       onStop={() => void stop()}
-      disabled={engine.state !== "ready"}
+      disabled={engine.state !== "ready" || blocked}
       onSend={(text, ctx) => {
         const extras: string[] = [];
         if (ctx.sources.includes("system")) extras.push("(Please start by checking my system information.)");
@@ -242,6 +277,7 @@ function EmptyChat() {
           Describe the problem in your own words. I'll figure out what's wrong and fix it, and I'll ask before changing anything.
         </p>
       </div>
+      <Plan />
       <Composer busy={false} tall onSend={(t) => void send(t)} />
       <div className="flex flex-wrap gap-1.5">
         {SUGGESTIONS.map((s) => (
@@ -301,6 +337,7 @@ export function Chat() {
       <div className="mx-auto flex w-full max-w-[720px] flex-col gap-2 px-6 pb-5">
         {rows.length > 0 && <TaskRows variant="List" rows={rows} labels={{ completed: "Done", failed: "Skipped" }} />}
         {error && <ErrorBar text={error} onClose={dismissError} inline />}
+        <Plan />
         <Composer busy={busy} onSend={(t) => void send(t)} />
       </div>
     </div>

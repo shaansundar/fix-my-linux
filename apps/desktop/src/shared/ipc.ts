@@ -1,4 +1,5 @@
 /** The API the preload script exposes to the renderer as `window.fml`. */
+import type { AccountState } from "./account";
 import type { ApprovalDecision, AuditEntry, PendingApproval } from "./approvals";
 import type { OpencodeEvent, SessionView } from "./session";
 
@@ -58,6 +59,18 @@ export type FmlApi = {
   notices: {
     onBlocked(cb: (n: BlockedNotice) => void): Unsubscribe;
   };
+  account: {
+    state(): Promise<AccountState>;
+    onChange(cb: (s: AccountState) => void): Unsubscribe;
+    startSignIn(email: string): Promise<void>;
+    verify(email: string, code: string): Promise<void>;
+    /** Opens the payment page in the browser and watches for the subscription. */
+    subscribe(): Promise<void>;
+    /** Opens the billing portal in the browser. */
+    manage(): Promise<void>;
+    refresh(): Promise<void>;
+    signOut(): Promise<void>;
+  };
   password: {
     list(): Promise<PasswordRequest[]>;
     /** null cancels; the password is never stored. */
@@ -87,6 +100,14 @@ export const CH = {
   activityList: "activity:list",
   activityEntry: "activity:entry",
   blocked: "notices:blocked",
+  accountState: "account:state",
+  accountChange: "account:change",
+  accountStart: "account:start",
+  accountVerify: "account:verify",
+  accountSubscribe: "account:subscribe",
+  accountManage: "account:manage",
+  accountRefresh: "account:refresh",
+  accountSignOut: "account:signout",
   passwordList: "password:list",
   passwordAnswer: "password:answer",
   passwordChange: "password:change",

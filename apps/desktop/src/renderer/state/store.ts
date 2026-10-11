@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react";
+import type { AccountState } from "../../shared/account";
 import type { ApprovalDecision, AuditEntry, PendingApproval } from "../../shared/approvals";
 import type { BlockedNotice, EngineState, FmlApi, ModelOption, PasswordRequest, SessionSummary } from "../../shared/ipc";
 import { emptyState, reduce, type ChatState, type OpencodeEvent } from "../../shared/session";
@@ -20,6 +21,7 @@ export type AppState = {
   notice: BlockedNotice | null;
   activity: AuditEntry[];
   passwords: PasswordRequest[];
+  account: AccountState;
   /** A message is on its way (between pressing send and the session going busy). */
   sending: boolean;
   error: string | null;
@@ -36,6 +38,7 @@ const initial: AppState = {
   notice: null,
   activity: [],
   passwords: [],
+  account: { status: "signed-out", weakStorage: false },
   sending: false,
   error: null,
 };
@@ -105,6 +108,14 @@ export function createStore(api: FmlApi) {
       );
       api.notices.onBlocked((notice) => set({ notice, sending: false }));
       api.password.onChange((passwords) => set({ passwords }));
+      api.account.onChange((account) =>
+        set((s) => ({
+          account,
+          // A fresh account state supersedes an old paywall or budget notice.
+          notice: account.account?.state === "active" ? null : s.notice,
+        })),
+      );
+      set({ account: await api.account.state() });
       const engine = await api.engine.state();
       set({ engine });
       if (engine.state === "ready") await onReady();
@@ -166,6 +177,31 @@ export function createStore(api: FmlApi) {
 
     async dismissQuestion(questionID: string) {
       await api.questions.reject(questionID).catch(fail);
+    },
+
+    async startSignIn(email: string) {
+      await api.account.startSignIn(email);
+    },
+
+    async verify(email: string, code: string) {
+      await api.account.verify(email, code);
+    },
+
+    async subscribe() {
+      await api.account.subscribe().catch(fail);
+    },
+
+    async manage() {
+      await api.account.manage().catch(fail);
+    },
+
+    async refreshAccount() {
+      await api.account.refresh().catch(fail);
+    },
+
+    async signOut() {
+      await api.account.signOut().catch(fail);
+      set({ view: { kind: "chat", sessionID: null }, sessions: [], chat: emptyState });
     },
 
     async answerPassword(id: string, password: string | null) {
