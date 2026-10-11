@@ -1,6 +1,7 @@
 /** The API the preload script exposes to the renderer as `window.fml`. */
 import type { AccountState } from "./account";
 import type { ApprovalDecision, AuditEntry, PendingApproval } from "./approvals";
+import type { HealthItem, SystemFact, SystemSample } from "./system";
 import type { OpencodeEvent, SessionView } from "./session";
 
 export type EngineState =
@@ -71,6 +72,13 @@ export type FmlApi = {
     refresh(): Promise<void>;
     signOut(): Promise<void>;
   };
+  system: {
+    facts(): Promise<SystemFact[]>;
+    health(): Promise<HealthItem[]>;
+    /** Recent usage samples, newest last. */
+    history(): Promise<SystemSample[]>;
+    onSample(cb: (s: SystemSample) => void): Unsubscribe;
+  };
   password: {
     list(): Promise<PasswordRequest[]>;
     /** null cancels; the password is never stored. */
@@ -108,6 +116,10 @@ export const CH = {
   accountManage: "account:manage",
   accountRefresh: "account:refresh",
   accountSignOut: "account:signout",
+  systemFacts: "system:facts",
+  systemHealth: "system:health",
+  systemHistory: "system:history",
+  systemSample: "system:sample",
   passwordList: "password:list",
   passwordAnswer: "password:answer",
   passwordChange: "password:change",

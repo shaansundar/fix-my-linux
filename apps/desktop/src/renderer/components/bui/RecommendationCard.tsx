@@ -105,9 +105,14 @@ function Meter({ signal, tone }: { signal: number; tone: string }) {
 export default function RecommendationCard({
   options = OPTIONS,
   labels,
+  onAccept,
+  fill = false,
 }: {
   options?: RecommendationOption[];
   labels?: Partial<RecommendationLabels>;
+  /** Called with the chosen option's key when its action button is pressed. */
+  onAccept?: (key: string) => void;
+  fill?: boolean;
   variant?: string;
 } = {}) {
   const t = { ...DEFAULT_LABELS, ...labels };
@@ -119,7 +124,7 @@ export default function RecommendationCard({
   const others = options.map((o, i) => ({ o, i })).filter(({ i }) => i !== selected);
 
   return (
-    <div className="w-full max-w-95 overflow-hidden rounded-card bg-surface shadow-card">
+    <div className={`w-full ${fill ? "" : "max-w-95 "}overflow-hidden rounded-card bg-surface shadow-card`}>
       <div className="primitive-card-pad">
         <span className="text-[14px] font-medium text-ink">
           {t.title}
@@ -174,7 +179,7 @@ export default function RecommendationCard({
         </span>
 
         <span className="-mr-0.5 flex items-center gap-2">
-          <Button
+          {others.length > 0 && <Button
             variant="secondary"
             size="sm"
             aria-expanded={open}
@@ -182,11 +187,14 @@ export default function RecommendationCard({
             className="px-2.5 text-[12.5px]"
           >
             {t.alternatives}
-          </Button>
+          </Button>}
           <Button
             variant={accepted ? "success" : active.ctaVariant}
             size="sm"
-            onClick={() => setAccepted(true)}
+            onClick={() => {
+              setAccepted(true);
+              onAccept?.(active.key);
+            }}
             className="text-[12.5px]"
           >
             {accepted ? t.accepted : active.cta}

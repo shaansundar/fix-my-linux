@@ -236,6 +236,77 @@ export type AnomalyData = {
   usage: number[];
 };
 
+/** One live line in a LiveCard. Values are points over time (seconds). */
+export type LiveSeries = {
+  name: string;
+  color: string;
+  dot: string;
+  points: LivelinePoint[];
+  /** The headline number, e.g. "42%". */
+  display: string;
+  sub: string;
+};
+
+/**
+ * A real-time variant of the compare card: same layout and chart, fed with
+ * live samples instead of a snapshot.
+ */
+export function LiveCard({
+  series,
+  label,
+  formatValue,
+  windowSecs = 60,
+}: {
+  series: LiveSeries[];
+  label: string;
+  formatValue: (v: number) => string;
+  windowSecs?: number;
+}) {
+  const dark = useDarkMode();
+  const chartSeries: LivelineSeries[] = useMemo(
+    () => series.map((s) => ({ id: s.name, label: "", data: s.points, value: s.points.at(-1)?.value ?? 0, color: s.color })),
+    [series],
+  );
+  return (
+    <div className="min-h-[278px] rounded-card bg-surface p-3 shadow-hairline">
+      <div className="flex items-center gap-4">
+        {series.map((s) => (
+          <div key={s.name} className="min-w-0 flex-1">
+            <span className="flex items-center gap-1.5 text-[11.5px] text-ink-2">
+              <span className={`size-2 rounded-full ${s.dot}`} />
+              {s.name}
+            </span>
+            <span className="block text-[17px] font-semibold tracking-[-0.01em] text-ink tabular-nums">{s.display}</span>
+            <span className="block truncate font-mono text-[11.5px] text-ink-3">{s.sub}</span>
+          </div>
+        ))}
+      </div>
+      <div className="mt-2 overflow-hidden rounded-control bg-inset shadow-hairline">
+        <div className="flex items-center justify-between border-b border-line px-2.5 py-1.5">
+          <span className="text-[11px] text-ink-3 tabular-nums">{label}</span>
+          <span className="rounded-full bg-field px-2 py-0.5 text-[10.5px] font-medium text-ink-2">Live</span>
+        </div>
+        <div className="insight-chart-stage relative h-[166px]">
+          <Liveline
+            data={[]}
+            value={0}
+            series={chartSeries}
+            theme={dark ? "dark" : "light"}
+            grid={false}
+            pulse
+            window={windowSecs}
+            scrub={false}
+            cursor="default"
+            lineWidth={2.25}
+            padding={{ top: 24, right: 0, bottom: 22, left: 0 }}
+            formatValue={formatValue}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const ANOMALY_DATA: AnomalyData = {
   spend: [274, 289, 264, 307, 331, 1210, 1718, 2112],
   usage: [18, 19, 17, 21, 22, 58, 81, 96],
@@ -485,10 +556,15 @@ const DEFAULT_INSIGHT_LABELS: InsightCardsLabels = {
 export default function InsightCards({
   pages = PAGES,
   labels,
+  fill = false,
+  onPill,
 }: {
   variant?: string;
   pages?: InsightPage[];
   labels?: Partial<InsightCardsLabels>;
+  fill?: boolean;
+  /** Called with the page key when its follow-up pill is pressed. */
+  onPill?: (key: string) => void;
 } = {}) {
   const l = { ...DEFAULT_INSIGHT_LABELS, ...labels };
   const [page, setPage] = useState(0);
@@ -497,10 +573,10 @@ export default function InsightCards({
     setPage((current) => (current + direction + pages.length) % pages.length);
   };
 
-  const { prose, Card, pill } = pages[page];
+  const { prose, Card, pill, key } = pages[page]!;
 
   return (
-    <div className="min-h-[408px] w-full max-w-86">
+    <div className={`min-h-[408px] w-full ${fill ? "" : "max-w-86"}`}>
       {/* pager header */}
       <div className="flex items-center justify-between">
         <span className="flex items-baseline gap-1.5">
@@ -535,6 +611,8 @@ export default function InsightCards({
           <Card />
         </div>
         <button
+          type="button"
+          onClick={() => onPill?.(key)}
           className="mt-2 rounded-full bg-surface px-3 py-1.5 text-left text-[12px] text-ink
             shadow-btn transition-colors duration-100 hover:bg-hover"
         >

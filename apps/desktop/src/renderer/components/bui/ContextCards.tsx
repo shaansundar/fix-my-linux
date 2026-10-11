@@ -53,7 +53,9 @@ export default function ContextCards({
   chunks = CHUNKS,
   labels,
   className,
+  fill = false,
 }: {
+  fill?: boolean;
   /** Accepted for gallery/registry parity; ContextCards has no visual variants. */
   variant?: string;
   chunks?: ContextChunk[];
@@ -69,7 +71,7 @@ export default function ContextCards({
   }, []);
 
   return (
-    <div className={`flex w-full max-w-95 flex-col gap-2${className ? ` ${className}` : ""}`}>
+    <div className={`flex w-full ${fill ? "" : "max-w-95 "}flex-col gap-2${className ? ` ${className}` : ""}`}>
       <div
         className="flex items-center gap-2 px-0.5"
         style={{ animation: "fade-in 400ms ease-out both" }}

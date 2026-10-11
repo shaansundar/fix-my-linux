@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from "react";
 import type { AccountState } from "../../shared/account";
+import type { HealthItem, SystemFact, SystemSample } from "../../shared/system";
 import type { ApprovalDecision, AuditEntry, PendingApproval } from "../../shared/approvals";
 import type { BlockedNotice, EngineState, FmlApi, ModelOption, PasswordRequest, SessionSummary } from "../../shared/ipc";
 import { emptyState, reduce, type ChatState, type OpencodeEvent } from "../../shared/session";
@@ -22,6 +23,9 @@ export type AppState = {
   activity: AuditEntry[];
   passwords: PasswordRequest[];
   account: AccountState;
+  facts: SystemFact[];
+  health: HealthItem[] | null;
+  samples: SystemSample[];
   /** A message is on its way (between pressing send and the session going busy). */
   sending: boolean;
   error: string | null;
@@ -39,6 +43,9 @@ const initial: AppState = {
   activity: [],
   passwords: [],
   account: { status: "signed-out", weakStorage: false },
+  facts: [],
+  health: null,
+  samples: [],
   sending: false,
   error: null,
 };
@@ -108,6 +115,8 @@ export function createStore(api: FmlApi) {
       );
       api.notices.onBlocked((notice) => set({ notice, sending: false }));
       api.password.onChange((passwords) => set({ passwords }));
+      api.system.onSample((sample) => set((s) => ({ samples: [...s.samples.slice(-59), sample] })));
+      void api.system.history().then((samples) => set({ samples }));
       api.account.onChange((account) =>
         set((s) => ({
           account,
@@ -123,6 +132,7 @@ export function createStore(api: FmlApi) {
 
     navigate(view: View) {
       set({ view, error: null });
+      if (view.kind === "home") void actions.loadHome();
       if (view.kind === "chat" && view.sessionID) void actions.open(view.sessionID);
     },
 
@@ -133,6 +143,17 @@ export function createStore(api: FmlApi) {
       } catch (err) {
         fail(err);
       }
+    },
+
+    async loadHome() {
+      const [facts, health] = await Promise.all([api.system.facts(), api.system.health()]);
+      set({ facts, health });
+    },
+
+    /** Starts a new chat with a prepared request (Home recommendations, quick fixes). */
+    async ask(text: string) {
+      set({ view: { kind: "chat", sessionID: null }, error: null });
+      await actions.send(text);
     },
 
     newChat() {

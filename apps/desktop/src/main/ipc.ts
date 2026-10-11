@@ -3,6 +3,7 @@ import type { ApprovalDecision } from "../shared/approvals";
 import { CH } from "../shared/ipc";
 import type { AccountState } from "../shared/account";
 import type { EngineState } from "../shared/ipc";
+import type { HealthItem, SystemFact, SystemSample } from "../shared/system";
 import type { Engine } from "./engine";
 
 const DECISIONS = new Set<ApprovalDecision>(["once", "similar", "reject"]);
@@ -23,6 +24,7 @@ function str(v: unknown, name: string, max = 20000): string {
 export function registerIpc(win: () => BrowserWindow | null, engine: () => Engine | null, actions: {
     restart(): Promise<void>;
     state(): EngineState;
+    system: { facts(): Promise<SystemFact[]>; health(): Promise<HealthItem[]>; history(): SystemSample[] };
     account: {
       state(): AccountState;
       start(email: string): Promise<void>;
@@ -79,6 +81,10 @@ export function registerIpc(win: () => BrowserWindow | null, engine: () => Engin
   handle(CH.accountManage, () => actions.account.manage());
   handle(CH.accountRefresh, () => actions.account.refresh());
   handle(CH.accountSignOut, () => actions.account.signOut());
+
+  handle(CH.systemFacts, () => actions.system.facts());
+  handle(CH.systemHealth, () => actions.system.health());
+  handle(CH.systemHistory, () => actions.system.history());
 
   handle(CH.passwordList, () => engine()?.passwords() ?? []);
   handle(CH.passwordAnswer, (id, password) => {

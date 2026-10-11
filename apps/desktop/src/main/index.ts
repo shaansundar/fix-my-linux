@@ -9,6 +9,8 @@ import { registerIpc } from "./ipc";
 import { needsAccount, resolveMode } from "./mode";
 import { dataDir, isFlatpak, resourcesDir, runtimeDir, userHome } from "./paths";
 import { installSessionPolicies, openExternalSafely } from "./security";
+import { facts, health, Sampler } from "./system";
+import type { SystemSample } from "../shared/system";
 
 app.enableSandbox();
 
@@ -177,9 +179,21 @@ app.whenReady().then(async () => {
     });
   }
 
+  // Live usage for the Home screen: a two-minute rolling window, sampled every 2s.
+  const sampler = new Sampler(userHome());
+  const samples: SystemSample[] = [];
+  setInterval(() => {
+    void sampler.sample().then((s) => {
+      samples.push(s);
+      if (samples.length > 60) samples.shift();
+      send(CH.systemSample, s);
+    });
+  }, 2000);
+
   registerIpc(() => win, () => engine, {
     restart: startEngine,
     state: () => engineState,
+    system: { facts: () => facts(userHome()), health: () => health(userHome()), history: () => samples },
     account: {
       state: () => accountState,
       start: (email) => account!.startSignIn(email).catch(friendly),
