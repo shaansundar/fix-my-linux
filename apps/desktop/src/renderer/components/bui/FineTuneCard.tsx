@@ -168,6 +168,16 @@ export type FineTuneCardProps = {
   labels?: Partial<FineTuneCardLabels>;
   /** Called with the full editable state whenever the user edits it. */
   onChange?: (state: FineTuneState) => void;
+  /** Text segments instead of the layout icons; [] hides the segmented control. */
+  segments?: string[];
+  /** Initial segment and type (controlled by the caller's saved settings). */
+  segment?: number;
+  type?: string;
+  /** Hide the dropdown row. */
+  noType?: boolean;
+  /** Hide the "Edited" / "Adjust" status in the header. */
+  noStatus?: boolean;
+  fill?: boolean;
 };
 
 export default function FineTuneCard({
@@ -175,14 +185,21 @@ export default function FineTuneCard({
   options = OPTIONS,
   labels,
   onChange,
+  segments,
+  segment = 0,
+  type,
+  noType = false,
+  noStatus = false,
+  fill = false,
 }: FineTuneCardProps) {
   const text = { ...DEFAULT_LABELS, ...labels };
-  const [seg, setSeg] = useState(0);
+  const segs = segments ?? SEGMENTS;
+  const [seg, setSeg] = useState(segment);
   const [values, setValues] = useState<Record<string, number>>(() =>
     Object.fromEntries(fields.map((f) => [f.key, f.value])),
   );
   const [menuOpen, setMenuOpen] = useState(false);
-  const [typeValue, setTypeValue] = useState(text.placeholder);
+  const [typeValue, setTypeValue] = useState(type ?? text.placeholder);
 
   const selectSeg = (i: number) => {
     setSeg(i);
@@ -205,11 +222,11 @@ export default function FineTuneCard({
   const done = seg !== 0 || changed || typeValue !== text.placeholder;
 
   return (
-    <div className="relative w-full max-w-60 rounded-card bg-surface shadow-raised">
+    <div className={`relative w-full ${fill ? "" : "max-w-60 "}rounded-card bg-surface shadow-raised`}>
       {/* header */}
       <div className="primitive-card-bar flex items-center justify-between border-b border-line">
         <span className="text-[13px] font-medium text-ink">{text.title}</span>
-        {done ? (
+        {noStatus ? null : done ? (
           <span
             className="flex items-center gap-1.5 text-[12px] font-medium text-green"
             style={{ animation: "pop-in 250ms cubic-bezier(0.23,1,0.32,1) both" }}
@@ -242,34 +259,37 @@ export default function FineTuneCard({
       </div>
 
       {/* layout section */}
-      <div className="primitive-card-pad flex flex-col gap-2 border-b border-line">
-        <p className="text-[12.5px] font-medium text-ink">{text.layout}</p>
+      {(segs.length > 0 || fields.length > 0) && (
+      <div className={`primitive-card-pad flex flex-col gap-2${noType ? "" : " border-b border-line"}`}>
+        {text.layout && <p className="text-[12.5px] font-medium text-ink">{text.layout}</p>}
         {/* segmented control: gray track, raised white thumb */}
-        <div className="relative grid grid-cols-3 rounded-control bg-field p-0.5">
+        {segs.length > 0 && (
+        <div className="relative grid rounded-control bg-field p-0.5" style={{ gridTemplateColumns: `repeat(${segs.length}, minmax(0, 1fr))` }}>
           <span
             aria-hidden
             className="absolute inset-y-0.5 rounded-[6px] bg-surface shadow-btn transition-transform duration-300"
             style={{
-              width: "calc((100% - 4px) / 3)",
+              width: `calc((100% - 4px) / ${segs.length})`,
               left: 2,
               transform: `translateX(${seg * 100}%)`,
               transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)",
             }}
           />
-          {SEGMENTS.map((s, i) => (
+          {segs.map((s, i) => (
             <button
               key={s}
               type="button"
-              aria-label={`${s} layout`}
+              aria-label={segments ? s : `${s} layout`}
               aria-pressed={i === seg}
               onClick={() => selectSeg(i)}
-              className={`relative z-10 flex h-6 items-center justify-center transition-colors duration-200
-                ${i === seg ? "text-accent" : "text-ink-3"}`}
+              className={`relative z-10 flex h-6 items-center justify-center px-1 transition-colors duration-200
+                ${segments ? "text-[12px] font-medium" : ""} ${i === seg ? "text-accent" : "text-ink-3"}`}
             >
-              <SegmentIcon kind={s} />
+              {segments ? <span className="truncate">{s}</span> : <SegmentIcon kind={s} />}
             </button>
           ))}
         </div>
+        )}
         {chunk(fields, 2).map((pair, ri) => (
           <div key={ri} className="grid min-w-0 grid-cols-2 gap-2">
             {pair.map((f) => (
@@ -288,11 +308,13 @@ export default function FineTuneCard({
           </div>
         ))}
       </div>
+      )}
 
       {/* interaction section */}
+      {!noType && (
       <div className="primitive-card-footer flex items-center justify-between">
         <span className="text-[12px] text-ink-3">{text.type}</span>
-        <div className="relative -mr-0.5 w-30">
+        <div className={`relative -mr-0.5 ${fill ? "w-52" : "w-30"}`}>
           <button
             type="button"
             aria-expanded={menuOpen}
@@ -315,7 +337,7 @@ export default function FineTuneCard({
 
           {menuOpen && (
             <div
-              className="absolute right-0 bottom-8 z-10 w-30 rounded-[10px] bg-surface p-1 shadow-raised"
+              className={`absolute right-0 bottom-8 z-10 ${fill ? "w-52" : "w-30"} rounded-[10px] bg-surface p-1 shadow-raised`}
               style={{
                 animation: "pop-in 200ms cubic-bezier(0.23,1,0.32,1) both",
                 transformOrigin: "bottom right",
@@ -340,6 +362,7 @@ export default function FineTuneCard({
           )}
         </div>
       </div>
+      )}
     </div>
   );
 }

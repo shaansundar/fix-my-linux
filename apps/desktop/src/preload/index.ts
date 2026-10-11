@@ -51,6 +51,10 @@ const api: FmlApi = {
     refresh: () => ipcRenderer.invoke(CH.accountRefresh),
     signOut: () => ipcRenderer.invoke(CH.accountSignOut),
   },
+  settings: {
+    get: () => ipcRenderer.invoke(CH.settingsGet),
+    update: (patch) => ipcRenderer.invoke(CH.settingsUpdate, patch),
+  },
   system: {
     facts: () => ipcRenderer.invoke(CH.systemFacts),
     health: () => ipcRenderer.invoke(CH.systemHealth),

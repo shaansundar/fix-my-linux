@@ -5,6 +5,7 @@ import { Activity as ActivityIcon } from "lucide-react";
 import { store, useApp } from "@/state/store";
 import { Activity } from "@/screens/Activity";
 import { Home } from "@/screens/Home";
+import { Settings } from "@/screens/Settings";
 import { Chat } from "@/screens/Chat";
 import { Starting } from "@/screens/Starting";
 import { PasswordPrompt } from "@/components/fml/PasswordPrompt";
@@ -40,6 +41,7 @@ export function App() {
   if (engine.state !== "ready") main = <Starting />;
   else if (view.kind === "activity") main = <Activity />;
   else if (view.kind === "home") main = <Home />;
+  else if (view.kind === "settings") main = <Settings />;
   else main = <Chat />;
 
   return (

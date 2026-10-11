@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from "react";
 import type { AccountState } from "../../shared/account";
+import { DEFAULT_SETTINGS, type Settings } from "../../shared/settings";
 import type { HealthItem, SystemFact, SystemSample } from "../../shared/system";
 import type { ApprovalDecision, AuditEntry, PendingApproval } from "../../shared/approvals";
 import type { BlockedNotice, EngineState, FmlApi, ModelOption, PasswordRequest, SessionSummary } from "../../shared/ipc";
@@ -23,6 +24,7 @@ export type AppState = {
   activity: AuditEntry[];
   passwords: PasswordRequest[];
   account: AccountState;
+  settings: Settings;
   facts: SystemFact[];
   health: HealthItem[] | null;
   samples: SystemSample[];
@@ -43,12 +45,22 @@ const initial: AppState = {
   activity: [],
   passwords: [],
   account: { status: "signed-out", weakStorage: false },
+  settings: DEFAULT_SETTINGS,
   facts: [],
   health: null,
   samples: [],
   sending: false,
   error: null,
 };
+
+let themeQuery: MediaQueryList | null = null;
+/** Applies light, dark, or the system's choice (following changes). */
+export function applyTheme(theme: Settings["theme"]): void {
+  themeQuery ??= window.matchMedia("(prefers-color-scheme: dark)");
+  const apply = () => document.documentElement.classList.toggle("dark", theme === "dark" || (theme === "system" && themeQuery!.matches));
+  themeQuery.onchange = theme === "system" ? apply : null;
+  apply();
+}
 
 /** A tiny external store; the renderer's single source of truth. */
 export function createStore(api: FmlApi) {
@@ -89,7 +101,7 @@ export function createStore(api: FmlApi) {
         approvals,
         activity,
         passwords,
-        model: s.model && models.some((m) => m.id === s.model) ? s.model : (models.find((m) => m.recommended)?.id ?? models[0]?.id ?? null),
+        model: [s.model, s.settings.model].find((id) => id && models.some((m) => m.id === id)) ?? models.find((m) => m.recommended)?.id ?? models[0]?.id ?? null,
       }));
     } catch (err) {
       fail(err);
@@ -125,6 +137,9 @@ export function createStore(api: FmlApi) {
         })),
       );
       set({ account: await api.account.state() });
+      const settings = await api.settings.get();
+      set({ settings });
+      applyTheme(settings.theme);
       const engine = await api.engine.state();
       set({ engine });
       if (engine.state === "ready") await onReady();
@@ -231,6 +246,13 @@ export function createStore(api: FmlApi) {
 
     setModel(model: string) {
       set({ model });
+      void actions.updateSettings({ model });
+    },
+
+    async updateSettings(patch: Partial<Settings>) {
+      const settings = await api.settings.update(patch);
+      set({ settings });
+      applyTheme(settings.theme);
     },
 
     dismissNotice() {

@@ -1,6 +1,7 @@
 /** The API the preload script exposes to the renderer as `window.fml`. */
 import type { AccountState } from "./account";
 import type { ApprovalDecision, AuditEntry, PendingApproval } from "./approvals";
+import type { Settings } from "./settings";
 import type { HealthItem, SystemFact, SystemSample } from "./system";
 import type { OpencodeEvent, SessionView } from "./session";
 
@@ -72,6 +73,10 @@ export type FmlApi = {
     refresh(): Promise<void>;
     signOut(): Promise<void>;
   };
+  settings: {
+    get(): Promise<Settings>;
+    update(patch: Partial<Settings>): Promise<Settings>;
+  };
   system: {
     facts(): Promise<SystemFact[]>;
     health(): Promise<HealthItem[]>;
@@ -116,6 +121,8 @@ export const CH = {
   accountManage: "account:manage",
   accountRefresh: "account:refresh",
   accountSignOut: "account:signout",
+  settingsGet: "settings:get",
+  settingsUpdate: "settings:update",
   systemFacts: "system:facts",
   systemHealth: "system:health",
   systemHistory: "system:history",

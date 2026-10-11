@@ -9,6 +9,7 @@ import { registerIpc } from "./ipc";
 import { needsAccount, resolveMode } from "./mode";
 import { dataDir, isFlatpak, resourcesDir, runtimeDir, userHome } from "./paths";
 import { installSessionPolicies, openExternalSafely } from "./security";
+import { SettingsStore } from "./settings";
 import { facts, health, Sampler } from "./system";
 import type { SystemSample } from "../shared/system";
 
@@ -21,6 +22,7 @@ let engineState: EngineState = { state: "starting" };
 let mode: EngineMode | null = null;
 let account: AccountService | null = null;
 let accountState: AccountState = { status: "signed-out", weakStorage: false };
+let settings: SettingsStore | null = null;
 /** Which model list the running engine has; only free ↔ paid needs a restart. */
 let enginePlan: "free" | "paid" | null = null;
 const modelsFor = (s: AccountState): "free" | "paid" => (s.account?.state === "active" ? "paid" : "free");
@@ -58,6 +60,9 @@ function createWindow(): BrowserWindow {
       nodeIntegration: false,
       webSecurity: true,
       spellcheck: false,
+      // E2E runs keep animating while the window is in the background, so
+      // screenshots show settled colors. Users keep the battery-friendly default.
+      backgroundThrottling: process.env["FML_E2E"] !== "1",
     },
   });
   w.once("ready-to-show", () => w.show());
@@ -108,7 +113,7 @@ async function startEngineUnsafe(): Promise<void> {
     flatpak: isFlatpak(),
     askpassSocket: join(runtimeDir(), "askpass.sock"),
     deviceToken: () => account?.deviceToken ?? null,
-    alwaysAsk: () => false,
+    alwaysAsk: () => settings?.get().alwaysAsk ?? false,
     emit: {
       state: (s) => setEngineState(s),
       event: (e) => send(CH.chatEvent, e),
@@ -165,8 +170,15 @@ function friendly(err: unknown): never {
   throw err;
 }
 
+function applyZoom(): void {
+  const zoom = settings?.get().zoom ?? 100;
+  if (win && !win.isDestroyed()) win.webContents.setZoomFactor(zoom / 100);
+}
+
 app.whenReady().then(async () => {
   installSessionPolicies();
+  settings = new SettingsStore(join(app.getPath("userData"), "settings.json"));
+  await settings.load();
   const resolved = await resolveMode(process.env, dataDir());
   mode = resolved.mode;
   await resolved.demo?.stop();
@@ -194,6 +206,14 @@ app.whenReady().then(async () => {
     restart: startEngine,
     state: () => engineState,
     system: { facts: () => facts(userHome()), health: () => health(userHome()), history: () => samples },
+    settings: {
+      get: () => settings!.get(),
+      update: async (patch) => {
+        const next = await settings!.update(patch && typeof patch === "object" ? (patch as object) : {});
+        applyZoom();
+        return next;
+      },
+    },
     account: {
       state: () => accountState,
       start: (email) => account!.startSignIn(email).catch(friendly),
@@ -219,6 +239,7 @@ app.whenReady().then(async () => {
   });
   win = createWindow();
   win.on("closed", () => (win = null));
+  win.webContents.on("did-finish-load", applyZoom);
 
   if (account) await account.restore();
   // restore() starts the engine itself when a saved sign-in works; offline

@@ -10,7 +10,7 @@ export async function launch(env: Record<string, string> = {}): Promise<Launched
   const userData = await mkdtemp(join(tmpdir(), "fml-e2e-"));
   const app = await electron.launch({
     args: [".", `--user-data-dir=${userData}`],
-    env: { ...process.env, FML_DEMO: "1", ...env } as Record<string, string>,
+    env: { ...process.env, FML_DEMO: "1", FML_E2E: "1", ...env } as Record<string, string>,
   });
   const win = await app.firstWindow();
   return {
