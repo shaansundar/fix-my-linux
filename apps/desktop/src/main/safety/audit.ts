@@ -16,6 +16,8 @@ export class AuditLog {
   private entries: AuditEntry[] = [];
   private byCall = new Map<string, Pending>();
   private listeners = new Set<(e: AuditEntry) => void>();
+  /** Writes are chained so an entry's update always lands after the entry. */
+  private writes: Promise<void> = Promise.resolve();
 
   constructor(
     private readonly file: string | null,
@@ -104,7 +106,14 @@ export class AuditLog {
   }
 
   private persist(entry: AuditEntry): void {
-    if (!this.file) return;
-    void appendFile(this.file, `${JSON.stringify(entry)}\n`, { mode: 0o600 }).catch(() => undefined);
+    const file = this.file;
+    if (!file) return;
+    const line = `${JSON.stringify(entry)}\n`;
+    this.writes = this.writes.then(() => appendFile(file, line, { mode: 0o600 })).catch(() => undefined);
+  }
+
+  /** Resolves once every queued write is on disk. */
+  flush(): Promise<void> {
+    return this.writes;
   }
 }

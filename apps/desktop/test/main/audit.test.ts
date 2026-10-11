@@ -40,7 +40,7 @@ describe("AuditLog", () => {
     const log = new AuditLog(file);
     log.record({ sessionID: "s", kind: "command", subject: "apt install vlc", risk: low, decision: "approved", callID: "c1" });
     log.toolFinished({ sessionID: "s", callID: "c1", tool: "bash", subject: "apt install vlc", ok: true, exitCode: 0, rejected: false });
-    await new Promise((r) => setTimeout(r, 50));
+    await log.flush();
     expect((await readFile(file, "utf8")).trim().split("\n")).toHaveLength(2);
 
     const reloaded = new AuditLog(file);
