@@ -99,10 +99,17 @@ function secretDirs(ctx: SecretContext): string[] {
   return dirs;
 }
 
+/**
+ * macOS (development only) resolves /etc to /private/etc and /home to
+ * /System/Volumes/Data/home; map them back so checks match Linux.
+ */
+function canonical(abs: string): string {
+  return abs.replace(/^\/private(?=\/(etc|var|tmp)(\/|$))/, "").replace(/^\/System\/Volumes\/Data(?=\/home(\/|$))/, "");
+}
+
 /** Is reading this (absolute, resolved) path private? */
 export function isSecretPath(abs: string, ctx: SecretContext): boolean {
-  // macOS (development) resolves /etc to /private/etc; check the familiar form too.
-  const alt = abs.replace(/^\/private(?=\/(etc|var|tmp)(\/|$))/, "");
+  const alt = canonical(abs);
   return secretAt(abs, ctx) || (alt !== abs && secretAt(alt, ctx));
 }
 
@@ -125,11 +132,13 @@ function secretAt(abs: string, ctx: SecretContext): boolean {
  * is itself private or contains a private directory (searching the whole
  * home folder includes ~/.mozilla, for instance).
  */
-export function searchReachesSecrets(root: string, ctx: SecretContext): boolean {
-  if (isSecretPath(root, ctx)) return true;
-  const home = realish(ctx.home);
+export function searchReachesSecrets(raw: string, ctx: SecretContext): boolean {
+  if (isSecretPath(raw, ctx)) return true;
+  const root = canonical(raw);
+  const home = canonical(realish(ctx.home));
   if (root === "/" || root === "/home" || under(home, root)) return true;
   if (root === "/proc" || under(root, "/proc")) return true;
-  if (root === "/etc" || root === "/etc/NetworkManager") return true;
-  return secretDirs(ctx).some((d) => under(d, root));
+  // /etc's secrets (shadow, NetworkManager system-connections) are root-only;
+  // searching it as the user can't read them, and sudo searches always ask.
+  return secretDirs(ctx).map(canonical).some((d) => under(d, root));
 }

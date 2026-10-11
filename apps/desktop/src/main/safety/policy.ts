@@ -172,12 +172,9 @@ const find: Check = (args, ctx) => {
     if (w.text.startsWith("-") || w.text === "(" || w.text === "!" || w.text === ")") break;
     roots.push(w);
   }
-  for (const w of roots.length ? roots : [{ text: ".", glob: false, dynamic: false, tilde: false, quoted: false }]) {
-    const paths = expandPaths(w, ctx);
-    if (typeof paths === "string") return paths;
-    if (paths.some((p) => isSecretPath(p, ctx))) return "lists private folders";
-  }
-  return null;
+  // find descends, so a root is judged by everything beneath it, like grep -r.
+  const why = checkSearchRoots(roots, ctx);
+  return why ? why.replace("searches", "looks through") : null;
 };
 
 const ls: Check = (args, ctx) => {

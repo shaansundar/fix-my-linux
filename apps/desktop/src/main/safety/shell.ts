@@ -121,7 +121,9 @@ function lex(input: string): Token[] {
         dynamic = true;
       }
       if (ch === "*" || ch === "?" || ch === "[") glob = true;
-      if (ch === "{" && /^\{[^}]*,[^}]*\}/.test(input.slice(i))) throw new Unsupported("brace expansion");
+      // Any unquoted brace (lists {a,b} and ranges {1..9}, {01..10}) could
+      // expand to paths the policy never sees; only the literal {} is safe.
+      if (ch === "{" && input[i - 1] !== "$" && !input.startsWith("{}", i)) throw new Unsupported("brace expansion");
       text += ch;
       i++;
     }
@@ -129,6 +131,8 @@ function lex(input: string): Token[] {
       i++;
       continue;
     }
+    // ~user names another account's home; the policy can't resolve it safely.
+    if (tilde && text.length > 1 && text[1] !== "/") dynamic = true;
     // $HOME and ${HOME} at the start of a word are treated like ~.
     if (dynamic && !quotedAll && /^(\$HOME|\$\{HOME\})(\/|$)/.test(text) && !/\$/.test(text.replace(/^(\$HOME|\$\{HOME\})/, ""))) {
       dynamic = false;
