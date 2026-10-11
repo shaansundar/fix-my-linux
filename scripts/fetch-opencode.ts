@@ -1,6 +1,6 @@
 /**
  * Downloads the pinned opencode binaries from npm, verifies each tarball
- * against the registry's sha512 integrity value, and extracts the single
+ * against a sha512 pinned in this file, and extracts the single
  * executable into apps/desktop/resources/bin/<variant>/opencode.
  *
  *   node scripts/fetch-opencode.ts                 # all Linux release variants
@@ -14,6 +14,19 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 export const OPENCODE_VERSION = "1.19.0";
+
+/**
+ * The npm tarballs' sha512, pinned when the version was adopted. Downloads
+ * must match these, not just the registry's own answer, so a republished or
+ * tampered package fails the build. Update together with OPENCODE_VERSION.
+ */
+export const PINNED_INTEGRITY: Record<string, string> = {
+  "linux-x64": "sha512-+UFxn2AbOqKEISBDqrWk5nHsZrPWBMVZ4H9R7tbnrt1+nYvEGejpg9tyt+QMrpBPYZP7F+D3Ym0vZbZcF7gSSw==",
+  "linux-x64-baseline": "sha512-9EopGD/LvTfUBF24NyJFnkLd12CG0Tu7JO/BqHmjwASnaJbCmFQjx8KCJ5UBMPG/wwsBiXZiP8T0VMNTPWfnnw==",
+  "linux-arm64": "sha512-XD1qcVN4jEiaYHqtx40p8cEPJxBc1mcB99ksgQ81akZsGGwcNFyG6GH857jVEplbGgdzWiWxDCrSii56sHjmRQ==",
+  "darwin-arm64": "sha512-Tu13SSLE29V0sM2nKxJXA/IZzTxBf+ctEBrtyDCkhbpAyJIq75YduSbDhfQxUPOMnFEZjU1QxDt8gFieLRnSEg==",
+  "darwin-x64": "sha512-w9c6gz+27M+WfflspaFC8NIldkz74Q0nbD4Go6+U3RNg3CLIvuCrVkI6hubYAyHrLONBm4hXl8pDOJ0DwdDQlQ==",
+};
 const RELEASE_VARIANTS = ["linux-x64", "linux-x64-baseline", "linux-arm64"];
 const OUT_DIR = resolve("apps/desktop/resources/bin");
 
@@ -46,11 +59,14 @@ export function verifyIntegrity(data: Buffer, integrity: string): void {
 }
 
 async function fetchVariant(variant: string): Promise<void> {
+  const pinned = PINNED_INTEGRITY[variant];
+  if (!pinned) throw new Error(`no pinned checksum for ${variant}; add it to PINNED_INTEGRITY`);
   const { tarball, integrity } = await dist(variant);
+  if (integrity !== pinned) throw new Error(`registry checksum for ${variant} changed: expected ${pinned}, got ${integrity}`);
   const res = await fetch(tarball);
   if (!res.ok) throw new Error(`download failed for ${variant}: ${res.status}`);
   const data = Buffer.from(await res.arrayBuffer());
-  verifyIntegrity(data, integrity);
+  verifyIntegrity(data, pinned);
 
   const work = await mkdtemp(join(tmpdir(), "fml-opencode-"));
   try {

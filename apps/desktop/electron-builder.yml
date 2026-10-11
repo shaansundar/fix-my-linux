@@ -30,7 +30,10 @@ extraResources:
     to: THIRD_PARTY_NOTICES.md
 
 # Hardened Electron: no running as plain Node, no NODE_OPTIONS or inspector
-# flags, and the app only loads from its own integrity-checked asar.
+# flags, and the app only loads from its own asar. Embedded asar integrity is
+# enforced on macOS and Windows only; on Linux the packages' file ownership
+# (root-owned /opt, read-only AppImage and Flatpak) protects the app files,
+# including extraResources, which no integrity check covers.
 electronFuses:
   runAsNode: false
   enableCookieEncryption: true

@@ -219,3 +219,35 @@ describe("shell parser", () => {
     expect(d).toMatchObject({ dynamic: true });
   });
 });
+
+describe("wildcards into other processes", () => {
+  // Checked as written whenever the pattern matches nothing locally (no /proc
+  // on macOS, or a different PID namespace in the sandbox).
+  it.each(["cat /proc/*/environ", "cat /proc/[0-9]*/environ", "cat /proc/1/env*", "cat /proc/*/task/*/environ", "ls /proc/*/fd", "cat /proc/self/e?viron"])(
+    "%s asks first",
+    (cmd) => {
+      expect(verdict(cmd)).toBe("ask");
+    },
+  );
+
+  it("still allows harmless /proc wildcards", () => {
+    expect(verdict("cat /proc/*/status")).toBe("allow");
+  });
+});
+
+describe("in the Flatpak sandbox", () => {
+  // The policy sees the sandbox's files, which match the computer's only in
+  // the home folder; commands run on the host.
+  const sandboxed = (cmd: string) => evaluateCommand(cmd, { ...ctx, sandboxed: true }).action;
+
+  it.each(["cat /tmp/notes.txt", "cd /tmp && cat notes.txt", "ls /var/tmp", "cat /dev/shm/x", "cat /run/user/1000/x", "ls /etc/*.conf", "cat /var/log/*.log"])(
+    "%s asks first",
+    (cmd) => {
+      expect(sandboxed(cmd)).toBe("ask");
+    },
+  );
+
+  it.each(["cat /etc/os-release", "cat ~/Documents/notes.txt", "ls ~/Documents/*", "df -h", "journalctl -b -p err --no-pager -n 50"])("%s still runs on its own", (cmd) => {
+    expect(sandboxed(cmd)).toBe("allow");
+  });
+});

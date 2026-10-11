@@ -95,7 +95,7 @@ const MANAGERS: Array<[name: string, path: string]> = [
 async function osRelease(flatpak: boolean): Promise<string> {
   if (!flatpak) return (await text("/etc/os-release")) ?? "";
   // Flatpak exposes the host's copy; older versions don't, so ask the host.
-  return (await text("/run/host/os-release")) ?? (await lines("cat", ["/etc/os-release"], true)).join("\n");
+  return (await text("/run/host/os-release")) ?? (await lines("/bin/cat", ["/etc/os-release"], true)).join("\n");
 }
 
 async function installedManagers(flatpak: boolean): Promise<string[]> {
@@ -190,6 +190,7 @@ export class Sampler {
   }
 }
 
+/** Runs a fixed program (by absolute path, so nothing earlier in PATH can stand in for it). */
 async function lines(cmd: string, args: string[], flatpak: boolean): Promise<string[]> {
   const c = hostCommand(flatpak, cmd, args);
   try {
@@ -230,7 +231,7 @@ export async function health(home: string, flatpak = false): Promise<HealthItem[
   }
 
   if (process.platform === "linux") {
-    const failed = await lines("systemctl", ["--failed", "--no-legend", "--plain", "--no-pager"], flatpak);
+    const failed = await lines("/bin/systemctl", ["--failed", "--no-legend", "--plain", "--no-pager"], flatpak);
     if (failed.length) {
       const names = failed.map((l) => l.split(/\s+/)[0]).filter(Boolean);
       items.push({

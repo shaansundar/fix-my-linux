@@ -90,7 +90,9 @@ export function packagePreview(flatpak: boolean): Preview {
   return async (command) => {
     const args = aptSimulation(command);
     if (!args) return null;
-    const c = hostCommand(flatpak, "apt-get", args, { LANG: "C", LC_ALL: "C", DEBIAN_FRONTEND: "noninteractive" });
+    // An absolute path: the dry run starts before anyone approves anything, so a
+    // program planted earlier in PATH (~/.local/bin) must not run instead.
+    const c = hostCommand(flatpak, "/usr/bin/apt-get", args, { LANG: "C", LC_ALL: "C", DEBIAN_FRONTEND: "noninteractive" });
     try {
       const { stdout } = await run(c.file, c.args, { timeout: 20_000, maxBuffer: 4 * 1024 * 1024, env: { ...process.env, ...c.env } });
       return parseAptSimulation(stdout);

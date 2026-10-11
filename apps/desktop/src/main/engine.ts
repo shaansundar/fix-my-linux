@@ -16,6 +16,7 @@ import { ApprovedSudo, AskpassServer, elevatedCommands, ProcFs, PsInspector, sud
 import { AuditLog } from "./safety/audit";
 import { ApprovalBroker, type PermissionRequest } from "./safety/broker";
 import { packagePreview } from "./safety/packages";
+import type { PolicyContext } from "./safety/policy";
 
 export type EngineMode =
   /** Production: our backend proxies Zen and serves the catalog. */
@@ -28,7 +29,10 @@ export type EngineMode =
 export type EngineDeps = {
   mode: EngineMode;
   resourcesDir: string;
+  /** The engine's own files (opencode's data, activity log, catalog). */
   dataDir: string;
+  /** Everything the app keeps, dataDir included: sign-in token, settings, browser storage. */
+  privateDir: string;
   home: string;
   flatpak: boolean;
   askpassSocket: string;
@@ -45,6 +49,14 @@ export type EngineDeps = {
   log?(line: string): void;
   cpuinfo?(): Promise<string>;
 };
+
+/**
+ * What the safety policy needs: commands run in the home folder, and the
+ * agent asks before reading anything the app keeps.
+ */
+export function policyFor(deps: Pick<EngineDeps, "home" | "privateDir" | "flatpak">): PolicyContext {
+  return { home: deps.home, cwd: deps.home, appData: deps.privateDir, sandboxed: deps.flatpak };
+}
 
 /** Events the renderer needs; everything else stays in the main process. */
 const FORWARDED = new Set([
@@ -95,7 +107,7 @@ export class Engine {
         this.audit.record(e);
       },
       home: deps.home,
-      policy: () => ({ home: deps.home, cwd: deps.home, appData: deps.dataDir }),
+      policy: () => policyFor(deps),
       worktree: () => this.worktree,
       alwaysAsk: () => deps.alwaysAsk(),
       previewPackages: process.platform === "linux" ? packagePreview(deps.flatpak) : undefined,

@@ -105,6 +105,15 @@ export class ApprovalBroker {
       const ctx = this.deps.policy();
       if (path !== null && !insideHome(path, ctx.cwd, ctx.home)) {
         await this.deps.reply(req.id, "reject", SANDBOX_MESSAGE);
+        const edit = req.permission === "edit";
+        this.deps.audit({
+          sessionID: req.sessionID,
+          kind: edit ? "edit" : "folder",
+          subject: path,
+          risk: edit ? scoreEdit(path, this.deps.home) : scoreDirectories([path], this.deps.home),
+          decision: "blocked",
+          callID: req.tool?.callID,
+        });
         return;
       }
     }

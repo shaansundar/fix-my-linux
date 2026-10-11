@@ -30,7 +30,7 @@ Requirements: Node 22+ (24 recommended), pnpm 10, Go 1.26.
 
 ```bash
 pnpm install
-pnpm fetch:opencode --host      # opencode for this machine, checksum-verified
+pnpm fetch:opencode --host      # opencode for this machine, checked against pinned checksums
 pnpm build:helpers --host       # fml-askpass for this machine
 ```
 
@@ -96,8 +96,8 @@ staticcheck and gosec.
   override deny rules. "Allow similar" is remembered by the app for one
   chat, only for low/medium risk, and never for deletes, stops or writes.
 - **Private files ask first:** SSH keys, browser profiles, keyrings,
-  `/etc/shadow`, other users' homes, `/proc/*/environ` and the app's own
-  data.
+  `/etc/shadow`, other users' homes, `/proc/*/environ` and everything the
+  app itself keeps, including the sign-in token.
 - **sudo** always uses the in-app password prompt, which names the exact
   command. The password goes straight to sudo's askpass helper. It is never
   logged, stored or shown to the model.
@@ -132,6 +132,9 @@ commands on your computer.
   environment.
 - opencode's file tools only see the home folder, so outside it the agent
   is told to use shell commands instead.
+- The safety policy also only sees the sandbox's copy of the files. Commands
+  that use wildcards outside home, or temporary folders like `/tmp` (which
+  differ on the host), ask first.
 - The askpass peer check is weaker here: host processes aren't visible
   from the sandbox, so it only checks that a sudo approval is active.
 - Because of the host access this build can't go on Flathub. It ships

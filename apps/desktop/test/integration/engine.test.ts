@@ -53,6 +53,7 @@ describe("Engine (real opencode, fake Zen)", () => {
       mode: { kind: "custom", upstreamURL: `${url}/zen/v1`, upstreamKey: "dev-key", catalogFile },
       resourcesDir: RESOURCES,
       dataDir: join(dir, "data"),
+      privateDir: dir,
       home: dir,
       flatpak: false,
       askpassSocket: join(dir, "askpass.sock"),

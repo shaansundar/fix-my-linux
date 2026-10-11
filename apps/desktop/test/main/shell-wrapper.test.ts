@@ -85,7 +85,10 @@ while [ $# -gt 0 ]; do
     *) break ;;
   esac
 done
-exec env -i HOME=/home/ana PATH=/usr/local/bin:/usr/bin:/bin "\${envs[@]}" "$@"
+# TEST_HOST_PATH=none simulates a host session without PATH.
+host_path=("PATH=/usr/local/bin:/usr/bin:/bin")
+[ "\${TEST_HOST_PATH:-}" = none ] && host_path=()
+exec env -i HOME=/home/ana "\${host_path[@]}" "\${envs[@]}" "$@"
 `,
   );
   chmodSync(join(dir, "flatpak-spawn"), 0o755);
@@ -108,6 +111,13 @@ exec env -i HOME=/home/ana PATH=/usr/local/bin:/usr/bin:/bin "\${envs[@]}" "$@"
 
   it("puts the sudo shim in front of the host's own PATH", () => {
     expect(host("echo $PATH").trim()).toBe("/run/user/1000/fix-my-linux/shim:/usr/local/bin:/usr/bin:/bin");
+  });
+
+  it("keeps the shim first, and a usable PATH, when the host session has none", () => {
+    const path = run("echo $PATH", { ...SANDBOX_ENV, TEST_HOST_PATH: "none" }).trim().split(":");
+    expect(path[0]).toBe("/run/user/1000/fix-my-linux/shim");
+    expect(path).toContain("/usr/bin");
+    expect(run("command -v ls", { ...SANDBOX_ENV, TEST_HOST_PATH: "none" }).trim()).toMatch(/\/ls$/);
   });
 
   it("never hands sandbox paths or app secrets to the host", () => {

@@ -94,17 +94,19 @@ describe("broker in the Flatpak build", () => {
   // files, not the computer's. Commands run on the host and are unaffected.
   let replies: Array<[string, string, string | undefined]>;
   let shown: PendingApproval[];
+  let audits: Array<{ kind: string; subject: string; decision: string }>;
   let broker: ApprovalBroker;
 
   beforeEach(() => {
     replies = [];
     shown = [];
+    audits = [];
     broker = new ApprovalBroker({
       reply: async (id, reply, message) => void replies.push([id, reply, message]),
       explanationFor: () => null,
       show: (a) => shown.push(a),
       hide: () => undefined,
-      audit: () => undefined,
+      audit: (e) => audits.push({ kind: e.kind, subject: e.subject, decision: e.decision }),
       home,
       policy: () => ({ home, cwd: home }),
       worktree: () => "/",
@@ -132,6 +134,15 @@ describe("broker in the Flatpak build", () => {
     expect(replies.map(([, r]) => r)).toEqual(["reject", "reject", "reject", "reject", "reject", "reject"]);
     expect(replies.every(([, , m]) => /shell command/.test(m ?? ""))).toBe(true);
     expect(shown).toEqual([]);
+  });
+
+  it("logs each refusal in the activity log", async () => {
+    await broker.onAsked(ask("external_directory", ["/etc/*"], { filepath: "/etc/fstab", parentDir: "/etc" }));
+    await broker.onAsked(ask("edit", ["etc/hosts"], { filepath: "/etc/hosts", diff: "" }));
+    expect(audits).toEqual([
+      { kind: "folder", subject: "/etc/fstab", decision: "blocked" },
+      { kind: "edit", subject: "/etc/hosts", decision: "blocked" },
+    ]);
   });
 
   it("handles files in home as usual", async () => {

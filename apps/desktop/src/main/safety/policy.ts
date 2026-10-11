@@ -1,7 +1,7 @@
 import { globSync } from "node:fs";
 import { basename } from "node:path";
 import { isBlocked } from "./blocklist";
-import { isSecretPath, resolvePath, searchReachesSecrets, type SecretContext } from "./secrets";
+import { isSecretPath, resolvePath, sandboxCantCheck, searchReachesSecrets, type SecretContext } from "./secrets";
 import { parse, type SimpleCommand, type Word } from "./shell";
 
 /**
@@ -15,12 +15,17 @@ import { parse, type SimpleCommand, type Word } from "./shell";
 
 export type Verdict = { action: "allow" | "ask" | "deny"; reason: string };
 
-export type PolicyContext = SecretContext & { cwd: string };
+export type PolicyContext = SecretContext & {
+  cwd: string;
+  /** Flatpak: this process sees the sandbox's files, while commands run on the computer. */
+  sandboxed?: boolean;
+};
 
 type Check = (args: Word[], ctx: PolicyContext) => string | null;
 
 const ok: Check = () => null;
 const ASK_DYNAMIC = "uses a variable or wildcard the app can't check";
+const ASK_SANDBOX = "uses a folder the app can't check from its sandbox";
 
 /** Literal text of a word, or null when bash would substitute something. */
 function lit(w: Word | undefined): string | null {
@@ -56,8 +61,9 @@ function split(args: Word[], valueFlags: string[] = []) {
 /** Every path a word refers to (glob-expanded), or a reason to ask. */
 function expandPaths(w: Word, ctx: PolicyContext): string[] | string {
   if (w.dynamic) return ASK_DYNAMIC;
-  if (!w.glob) return [resolvePath(w.text, ctx.cwd, ctx.home)];
   const pattern = resolvePath(w.text, ctx.cwd, ctx.home);
+  if (ctx.sandboxed && sandboxCantCheck(pattern, w.glob, ctx.home)) return ASK_SANDBOX;
+  if (!w.glob) return [pattern];
   let matches: string[];
   try {
     matches = globSync(pattern);
@@ -65,6 +71,7 @@ function expandPaths(w: Word, ctx: PolicyContext): string[] | string {
     return ASK_DYNAMIC;
   }
   if (matches.length > 2000) return "matches too many files";
+  // A pattern that matches nothing here is checked as written.
   return matches.length ? matches.map((m) => resolvePath(m, ctx.cwd, ctx.home)) : [pattern];
 }
 

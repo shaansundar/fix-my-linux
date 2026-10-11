@@ -37,7 +37,8 @@ if [ "$flatpak" = "1" ]; then
   # host's PATH there.
   exec flatpak-spawn --host --watch-bus \
     --env=DEBIAN_FRONTEND=noninteractive --env=SYSTEMD_PAGER= --env=PAGER=cat --env=GIT_PAGER=cat \
-    /bin/bash -c 'PATH="$1:$PATH"; shift; exec /bin/bash "$@"' fml-host "$shim_dir" "$@"
+    /bin/bash -c 'export PATH="$1:${PATH:-/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin}"; shift; exec /bin/bash "$@"' \
+    fml-host "$shim_dir" "$@"
 fi
 
 export PATH="${shim_dir}:${PATH}"

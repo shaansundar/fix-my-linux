@@ -109,6 +109,7 @@ async function startEngineUnsafe(): Promise<void> {
     mode,
     resourcesDir: resourcesDir(),
     dataDir: dataDir(),
+    privateDir: app.getPath("userData"),
     home: userHome(),
     flatpak: isFlatpak(),
     askpassSocket: join(runtimeDir(), "askpass.sock"),
