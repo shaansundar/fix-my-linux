@@ -27,6 +27,7 @@ export type ApprovalDecision = "once" | "similar" | "reject";
 export type AuditDecision = "auto-ran" | "approved" | "approved-similar" | "denied" | "blocked";
 
 export type AuditEntry = {
+  id: string;
   ts: number;
   sessionID: string;
   kind: ApprovalKind;
