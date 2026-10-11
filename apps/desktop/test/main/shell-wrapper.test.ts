@@ -19,8 +19,11 @@ const APP_ENV = {
   FML_REAL_XDG_CONFIG_HOME: "/home/ana/.config",
   FML_REAL_XDG_DATA_HOME: "/home/ana/.local/share",
   FML_SHELL_DIR: SHELL_DIR,
+  FML_SHIM_DIR: "/run/user/1000/fix-my-linux/shim",
+  // Inherited from older launches; must never reach a command.
   FML_ASKPASS_BIN: "/app/bin/fml-askpass",
   FML_ASKPASS_SOCKET: "/run/user/1000/fix-my-linux/askpass.sock",
+  SUDO_ASKPASS: "/app/bin/fml-askpass",
   ELECTRON_RUN_AS_NODE: "1",
 };
 
@@ -39,11 +42,14 @@ describe("shell wrapper", () => {
     expect(run("env", APP_ENV)).not.toContain("FML_REAL_");
   });
 
-  it("routes sudo through the askpass helper", () => {
-    expect(run("command -v sudo", APP_ENV).trim()).toBe(join(SHELL_DIR, "bin/sudo"));
-    expect(run("echo $SUDO_ASKPASS", APP_ENV).trim()).toBe("/app/bin/fml-askpass");
-    // the socket path stays so the helper can find the app
-    expect(run("echo $FML_ASKPASS_SOCKET", APP_ENV).trim()).toBe("/run/user/1000/fix-my-linux/askpass.sock");
+  it("puts the per-launch sudo shim first and hides the askpass wiring", () => {
+    expect(run("echo $PATH", APP_ENV).trim().split(":")[0]).toBe("/run/user/1000/fix-my-linux/shim");
+    expect(run("echo \"[$SUDO_ASKPASS][$FML_ASKPASS_SOCKET][$FML_ASKPASS_BIN]\"", APP_ENV).trim()).toBe("[][][]");
+  });
+
+  it("falls back to the bundled shim", () => {
+    const { FML_SHIM_DIR: _drop, ...rest } = APP_ENV;
+    expect(run("command -v sudo", rest).trim()).toBe(join(SHELL_DIR, "bin/sudo"));
   });
 
   it("makes commands non-interactive", () => {

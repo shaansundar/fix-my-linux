@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import type { PendingApproval } from "../../src/shared/approvals";
-import { ApprovalBroker, isBlocked, type PermissionRequest } from "../../src/main/safety/broker";
+import { ApprovalBroker, type PermissionRequest } from "../../src/main/safety/broker";
+import { isBlocked } from "../../src/main/safety/blocklist";
 
 function bash(id: string, command: string, always: string[], sessionID = "s1"): PermissionRequest {
   return { id, sessionID, permission: "bash", patterns: [command], always, metadata: { command }, tool: { messageID: "m", callID: `c-${id}` } };
@@ -27,6 +28,8 @@ describe("ApprovalBroker", () => {
       hide: (id) => hidden.push(id),
       audit: (e) => audits.push({ decision: e.decision, subject: e.subject }),
       home: "/home/ana",
+      policy: () => ({ home: "/home/ana", cwd: "/home/ana" }),
+      worktree: () => "/",
       alwaysAsk: () => alwaysAsk,
       now: () => 1000,
     });

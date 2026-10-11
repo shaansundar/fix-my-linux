@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
-import { mkdir, readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
 import { createOpencodeClient, type OpencodeClient } from "@opencode-ai/sdk/v2/client";
 import type { ApprovalDecision, AuditEntry, PendingApproval } from "../shared/approvals";
 import type { BlockedNotice, EngineState, ModelOption, PasswordRequest, SessionSummary } from "../shared/ipc";
@@ -12,7 +12,7 @@ import { buildOpencodeEnv } from "./opencode/env";
 import { sessionDenyRules } from "./opencode/permissions";
 import { Supervisor } from "./opencode/process";
 import { ModelRelay, type Upstream } from "./relay";
-import { ApprovedSudo, AskpassServer, ProcFs, PsInspector } from "./safety/askpass";
+import { ApprovedSudo, AskpassServer, elevatedCommands, ProcFs, PsInspector, sudoShim } from "./safety/askpass";
 import { AuditLog } from "./safety/audit";
 import { ApprovalBroker, type PermissionRequest } from "./safety/broker";
 
@@ -74,6 +74,7 @@ export class Engine {
   readonly broker: ApprovalBroker;
   private readonly approvedSudo = new ApprovedSudo();
   private askpass: AskpassServer | null = null;
+  private worktree = "/";
 
   constructor(private readonly deps: EngineDeps) {
     this.audit = new AuditLog(join(deps.dataDir, "activity.jsonl"));
@@ -93,6 +94,8 @@ export class Engine {
         this.audit.record(e);
       },
       home: deps.home,
+      policy: () => ({ home: deps.home, cwd: deps.home, appData: deps.dataDir }),
+      worktree: () => this.worktree,
       alwaysAsk: () => deps.alwaysAsk(),
     });
   }
@@ -122,13 +125,24 @@ export class Engine {
       const relayOrigin = await this.relay.start();
 
       const variant = pickVariant(process.platform, process.arch, (await this.deps.cpuinfo?.()) ?? (await readCpuinfo()));
-      const askpassBin = join(this.deps.resourcesDir, "bin", variant, "fml-askpass");
+      // The shim and (for Flatpak, where sudo runs on the host) the helper live
+      // in the private runtime dir, which the host can see too.
+      const runtime = dirname(this.deps.askpassSocket);
+      const shimDir = join(runtime, "shim");
+      await mkdir(shimDir, { recursive: true, mode: 0o700 });
+      let askpassBin = join(this.deps.resourcesDir, "bin", variant, "fml-askpass");
+      if (this.deps.flatpak) {
+        const hostVisible = join(runtime, "fml-askpass");
+        await copyFile(askpassBin, hostVisible);
+        askpassBin = hostVisible;
+      }
+      await writeFile(join(shimDir, "sudo"), sudoShim(askpassBin, this.deps.askpassSocket), { mode: 0o700 });
       this.askpass = new AskpassServer({
         socketPath: this.deps.askpassSocket,
         helperPath: askpassBin,
         rootPid: () => this.supervisor?.pid,
         approved: (c) => this.approvedSudo.has(c),
-        latestApproved: (ms) => this.approvedSudo.latest(ms),
+        activeSudo: () => this.activeSudo(),
         flatpak: this.deps.flatpak,
         inspector: process.platform === "linux" ? new ProcFs() : new PsInspector(),
         show: () => this.deps.emit.passwords(this.askpass?.list() ?? []),
@@ -150,8 +164,7 @@ export class Engine {
         serverPassword: password,
         configContent: JSON.stringify(config),
         modelsPath,
-        askpassSocket: this.deps.askpassSocket,
-        askpassBin,
+        shimDir,
         shellDir: join(this.deps.resourcesDir, "shell"),
         flatpak: this.deps.flatpak,
       });
@@ -169,6 +182,13 @@ export class Engine {
           headers: { Authorization: `Basic ${Buffer.from(`opencode:${password}`).toString("base64")}` },
         });
         void this.pump();
+        void this.client.path
+          .get({ directory: this.deps.home })
+          .then((r) => {
+            const wt = (r.data as { worktree?: string } | undefined)?.worktree;
+            if (wt) this.worktree = wt;
+          })
+          .catch(() => undefined);
         this.setState({ state: "ready" });
       });
       this.supervisor.on("down", (reason) => {
@@ -196,6 +216,25 @@ export class Engine {
     await this.askpass?.stop();
     this.askpass = null;
     this.client = null;
+  }
+
+  /**
+   * For Flatpak: the approved sudo command that is running, if it is the only
+   * command running anywhere. Anything else is ambiguous and gets no prompt.
+   */
+  private activeSudo(): string | null {
+    const running: string[] = [];
+    for (const session of Object.values(this.chat.sessions)) {
+      for (const m of session.messages) {
+        if (m.role !== "assistant") continue;
+        for (const it of m.items) {
+          if (it.kind === "tool" && it.tool === "bash" && (it.status === "running" || it.status === "pending")) running.push(it.subject);
+        }
+      }
+    }
+    if (running.length !== 1) return null;
+    const elevated = elevatedCommands(running[0]!);
+    return elevated.length === 1 && this.approvedSudo.has(elevated[0]!) ? elevated[0]! : null;
   }
 
   passwords(): PasswordRequest[] {

@@ -12,3 +12,4 @@ playwright-report/
 release/
 server/bin/
 test-results/
+*.tsbuildinfo

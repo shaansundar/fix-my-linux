@@ -58,8 +58,7 @@ describe("buildOpencodeEnv", () => {
     serverPassword: "pw",
     configContent: "{}",
     modelsPath: "/data/models.json",
-    askpassSocket: "/run/user/1000/fml/askpass.sock",
-    askpassBin: "/app/resources/bin/linux-x64/fml-askpass",
+    shimDir: "/run/user/1000/fix-my-linux/shim",
     shellDir: "/app/resources/shell",
     flatpak: false,
   };

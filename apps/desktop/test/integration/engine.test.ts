@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -23,6 +23,12 @@ function until<T>(get: () => T | undefined, timeoutMs = 20000): Promise<T> {
 }
 
 describe("Engine (real opencode, fake Zen)", () => {
+  /** Waits until the session finished its whole turn, so no stray turn eats the next test's script. */
+  const idle = (id: string) =>
+    until(() =>
+      [...events].reverse().find((e) => e.type === "session.status" && (e.properties as any).sessionID === id && (e.properties as any).status.type === "idle"),
+    );
+
   const zen = new FakeZen();
   let dir: string;
   let engine: Engine;
@@ -121,8 +127,9 @@ describe("Engine (real opencode, fake Zen)", () => {
     zen.clear().script({ text: "I'll check your disk.", tools: [{ name: "bash", args: { command: "df -h" } }] }, { text: "Plenty of room." });
     const id = await engine.createSession();
     await engine.send(id, "disk?");
-    const entry = await until(() => activity.find((a) => a.sessionID === id && a.decision === "auto-ran"));
+    const entry = await until(() => activity.find((a) => a.sessionID === id && a.decision === "auto-ran" && a.outcome));
     expect(entry).toMatchObject({ subject: "df -h", outcome: "succeeded", exitCode: 0, risk: "low" });
+    await idle(id);
   });
 
   it("blocks catastrophic commands without ever showing them", async () => {
@@ -149,6 +156,41 @@ describe("Engine (real opencode, fake Zen)", () => {
     } finally {
       zen.failWith = null;
     }
+  });
+
+  it("protects private files from the agent's file tools", async () => {
+    await mkdir(join(dir, ".mozilla/firefox/p"), { recursive: true });
+    await writeFile(join(dir, ".mozilla/firefox/p/logins.json"), "SECRETVALUE");
+    // A grep with no path searches the whole home folder, hidden folders included.
+    zen.clear().script({ text: "Searching.", tools: [{ name: "grep", args: { pattern: "SECRETVALUE" } }] }, { text: "ok" });
+    const id = await engine.createSession();
+    await engine.send(id, "find it");
+    const card = await until(() => approvals.find((a) => a.sessionID === id));
+    expect(card.risk.level).toBe("high");
+    expect(card.risk.reasons[0]).toMatch(/private files/);
+    await engine.decide(card.id, "reject");
+    await until(() =>
+      [...events].reverse().find((e) => e.type === "session.status" && (e.properties as any).sessionID === id && (e.properties as any).status.type === "idle"),
+    );
+    const view = await engine.openSession(id);
+    const grep = view.messages.flatMap((m) => (m.role === "assistant" ? m.items : [])).find((i) => i.kind === "tool" && i.tool === "grep");
+    expect(grep).toMatchObject({ status: "error" });
+    expect(JSON.stringify(view)).not.toContain("logins.json");
+  });
+
+  it("asks before a glob-disguised read of browser data", async () => {
+    zen.clear().script({ text: "Checking.", tools: [{ name: "bash", args: { command: "cat ~/.mo*/fire*/*/log*.json" } }] }, { text: "ok" });
+    const id = await engine.createSession();
+    await engine.send(id, "show me");
+    // Depending on where opencode's working directory resolves, the folder
+    // request or the command request comes first; either way it's high risk.
+    const card = await until(() => approvals.find((a) => a.sessionID === id));
+    expect(["command", "folder"]).toContain(card.kind);
+    expect(card.risk.level).toBe("high");
+    await engine.decide(card.id, "reject");
+    await until(() =>
+      [...events].reverse().find((e) => e.type === "session.status" && (e.properties as any).sessionID === id && (e.properties as any).status.type === "idle"),
+    );
   });
 
   it("lists sessions newest first", async () => {

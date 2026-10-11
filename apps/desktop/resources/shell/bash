@@ -11,7 +11,8 @@
 
 shell_dir="${FML_SHELL_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
 flatpak="${FML_FLATPAK:-0}"
-askpass_bin="${FML_ASKPASS_BIN:-${shell_dir}/bin/fml-askpass}"
+# The per-launch sudo shim (askpass paths baked in); the bundled one is a fallback.
+shim_dir="${FML_SHIM_DIR:-${shell_dir}/bin}"
 
 for key in XDG_CONFIG_HOME XDG_DATA_HOME XDG_CACHE_HOME XDG_STATE_HOME; do
   real="FML_REAL_${key}"
@@ -26,10 +27,9 @@ while IFS= read -r name; do
     OPENCODE_* | ELECTRON_* | CHROME_* ) unset "$name" ;;
   esac
 done < <(compgen -e)
-unset FML_SHELL_DIR FML_FLATPAK FML_ASKPASS_BIN
+unset FML_SHELL_DIR FML_FLATPAK FML_SHIM_DIR FML_ASKPASS_BIN FML_ASKPASS_SOCKET SUDO_ASKPASS
 
-export PATH="${shell_dir}/bin:${PATH}"
-export SUDO_ASKPASS="${askpass_bin}"
+export PATH="${shim_dir}:${PATH}"
 # Non-interactive defaults so commands never stop to wait for a keypress.
 export DEBIAN_FRONTEND=noninteractive
 export SYSTEMD_PAGER=
@@ -41,7 +41,7 @@ if [ "$flatpak" = "1" ]; then
   while IFS= read -r name; do
     case "$name" in
       PATH | HOME | USER | LANG | LC_* | TERM | DISPLAY | WAYLAND_DISPLAY | XDG_* | DBUS_SESSION_BUS_ADDRESS | \
-        SUDO_ASKPASS | FML_ASKPASS_SOCKET | DEBIAN_FRONTEND | SYSTEMD_PAGER | PAGER | GIT_PAGER)
+        DEBIAN_FRONTEND | SYSTEMD_PAGER | PAGER | GIT_PAGER)
         env_args+=("--env=${name}=${!name}")
         ;;
     esac

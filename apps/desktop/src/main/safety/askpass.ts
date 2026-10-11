@@ -15,9 +15,10 @@ import { stripElevation } from "./risk";
  * password card appear, naming that exact command.
  *
  * In the Flatpak build sudo runs on the host (flatpak-spawn --host), outside
- * our pid namespace, so the process checks can't run. There the prompt names
- * the most recent approved sudo command, and only within two minutes of the
- * approval; that is weaker and documented as such.
+ * our pid namespace, so the process checks can't run. There a prompt is only
+ * shown while exactly one command is running and it is an approved sudo
+ * command, and the prompt names it; a second command started to fish for the
+ * password makes the request ambiguous and it is refused.
  *
  * Residual risk: Node can't read SO_PEERCRED, so a malicious process of the
  * same user could claim a legitimate helper's pid. Such a process could
@@ -106,9 +107,10 @@ export type AskpassDeps = {
   /** Whether the person approved running this (normalized) command with sudo recently. */
   approved(command: string): boolean;
   inspector: ProcessInspector;
-  /** Flatpak build: host processes are invisible, fall back to the latest approval. */
+  /** Flatpak build: host processes are invisible, so rely on what is running. */
   flatpak?: boolean;
-  latestApproved?(withinMs: number): string | null;
+  /** The approved sudo command that is running right now, if it is the only command running. */
+  activeSudo?(): string | null;
   show(req: AskpassRequest): void;
   hide(id: string): void;
   log?(line: string): void;
@@ -204,8 +206,8 @@ export class AskpassServer {
     if (msg.v !== 1 || !Number.isInteger(msg.pid) || !Number.isInteger(msg.ppid)) return this.refuse(socket, "bad request");
 
     if (this.deps.flatpak) {
-      const command = this.deps.latestApproved?.(120_000) ?? null;
-      if (!command) return this.refuse(socket, "no recently approved sudo command");
+      const command = this.deps.activeSudo?.() ?? null;
+      if (!command) return this.refuse(socket, "no single approved sudo command is running");
       const attempt = (this.attempts.get(msg.ppid) ?? 0) + 1;
       this.attempts.set(msg.ppid, attempt);
       const req: AskpassRequest = { id: randomUUID(), command, attempt };
@@ -247,6 +249,24 @@ export class AskpassServer {
   }
 }
 
+/** The sudo shim for this launch, with the helper and socket paths baked in. */
+export function sudoShim(helperPath: string, socketPath: string): string {
+  const q = (v: string) => `'${v.replaceAll("'", "'\\''")}'`;
+  return `#!/bin/bash
+# Fix My Linux sudo shim (generated per launch): always use the in-app
+# password prompt, never a terminal prompt the person can't see.
+export SUDO_ASKPASS=${q(helperPath)}
+export FML_ASKPASS_SOCKET=${q(socketPath)}
+for candidate in /usr/bin/sudo /bin/sudo /usr/local/bin/sudo; do
+  if [ -x "$candidate" ]; then
+    exec "$candidate" -A "$@"
+  fi
+done
+echo "sudo is not installed on this system." >&2
+exit 127
+`;
+}
+
 /** Remembers sudo commands the person approved, for a limited time. */
 export class ApprovedSudo {
   private entries: Array<{ command: string; at: number }> = [];
@@ -265,12 +285,6 @@ export class ApprovedSudo {
   has(command: string): boolean {
     this.prune();
     return this.entries.some((e) => e.command === command);
-  }
-
-  latest(withinMs: number): string | null {
-    this.prune();
-    const last = this.entries.at(-1);
-    return last && last.at >= this.now() - withinMs ? last.command : null;
   }
 
   private prune(): void {

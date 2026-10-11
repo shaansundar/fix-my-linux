@@ -7,6 +7,7 @@ import {
   ApprovedSudo,
   AskpassServer,
   elevatedCommands,
+  sudoShim,
   sudoTarget,
   type AskpassRequest,
   type ProcInfo,
@@ -144,10 +145,9 @@ describe("AskpassServer", () => {
 });
 
 describe("AskpassServer in Flatpak", () => {
-  it("names the latest approved command, only shortly after approval", async () => {
+  it("names the one running approved sudo command, and refuses otherwise", async () => {
     const dir = await mkdtemp(join(tmpdir(), "ap"));
-    let now = 1_000_000;
-    const approved = new ApprovedSudo(15 * 60_000, () => now);
+    let active: string | null = "systemctl restart NetworkManager";
     const shown: AskpassRequest[] = [];
     const server = new AskpassServer({
       socketPath: join(dir, "s"),
@@ -156,21 +156,21 @@ describe("AskpassServer in Flatpak", () => {
       approved: () => false,
       inspector: new FakeProcs(),
       flatpak: true,
-      latestApproved: (ms) => approved.latest(ms),
+      activeSudo: () => active,
       show: (r) => shown.push(r),
       hide: () => undefined,
     });
     await server.start();
     try {
-      approved.add("sudo systemctl restart NetworkManager");
       const a = ask(join(dir, "s"), { v: 1, pid: 5, ppid: 4, prompt: "" });
       await expect.poll(() => shown.length).toBe(1);
       expect(shown[0]!.command).toBe("systemctl restart NetworkManager");
       server.answer(shown[0]!.id, "pw");
       expect(await a).toEqual({ ok: true, password: "pw" });
 
-      now += 3 * 60_000;
+      active = null;
       expect(await ask(join(dir, "s"), { v: 1, pid: 6, ppid: 4, prompt: "" })).toEqual({ ok: false });
+      expect(shown).toHaveLength(1);
     } finally {
       await server.stop();
       await rm(dir, { recursive: true, force: true });
@@ -199,5 +199,14 @@ describe("matching helpers", () => {
     expect(a.has("apt update")).toBe(true);
     now = 2000;
     expect(a.has("apt update")).toBe(false);
+  });
+});
+
+describe("sudoShim", () => {
+  it("bakes in quoted paths and always uses askpass", () => {
+    const shim = sudoShim("/run/user/1000/fix my linux/fml-askpass", "/run/user/1000/it's/s");
+    expect(shim).toContain("export SUDO_ASKPASS='/run/user/1000/fix my linux/fml-askpass'");
+    expect(shim).toContain("export FML_ASKPASS_SOCKET='/run/user/1000/it'\\''s/s'");
+    expect(shim).toContain('exec "$candidate" -A "$@"');
   });
 });

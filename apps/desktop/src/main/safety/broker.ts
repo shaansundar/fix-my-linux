@@ -1,6 +1,6 @@
 import type { ApprovalDecision, ApprovalKind, AuditDecision, PendingApproval, Risk, RiskLevel } from "../../shared/approvals";
-import { DENY_BASH } from "../opencode/permissions";
-import { match, simpleCommands } from "../opencode/wildcard";
+import { isAbsolute, join } from "node:path";
+import { evaluateCommand, evaluatePathTool, type PolicyContext, type Verdict } from "./policy";
 import { scoreCommand, scoreDirectories, scoreEdit } from "./risk";
 
 /** The subset of opencode's permission.asked payload the broker uses. */
@@ -25,6 +25,10 @@ export type BrokerDeps = {
   hide(id: string): void;
   audit(entry: { sessionID: string; kind: ApprovalKind; subject: string; risk: Risk; decision: AuditDecision; callID?: string }): void;
   home: string;
+  /** Where commands run and which paths are private. */
+  policy(): PolicyContext;
+  /** opencode's worktree; `read` patterns are relative to it. */
+  worktree(): string;
   /** Settings: when true, never auto-approve "similar" requests. */
   alwaysAsk(): boolean;
   now?(): number;
@@ -44,18 +48,60 @@ export class ApprovalBroker {
 
   constructor(private readonly deps: BrokerDeps) {}
 
+  /** What the policy says about a request, or null when only a person can decide. */
+  private verdictFor(req: PermissionRequest): Verdict | null {
+    const meta = req.metadata;
+    const ctx = this.deps.policy();
+    const command = typeof meta["command"] === "string" ? (meta["command"] as string) : null;
+    // opencode asks for folder access before it evaluates bash rules, so a
+    // folder request carries the command it is for.
+    if (command && (req.permission === "bash" || req.permission === "external_directory")) {
+      return evaluateCommand(command, ctx);
+    }
+    switch (req.permission) {
+      case "read":
+      case "list": {
+        const p = req.patterns[0];
+        if (!p) return null;
+        const abs = isAbsolute(p) ? p : join(this.deps.worktree(), p);
+        return evaluatePathTool("read", abs, ctx);
+      }
+      case "grep":
+      case "glob":
+        return evaluatePathTool(req.permission, typeof meta["path"] === "string" ? (meta["path"] as string) : ctx.cwd, ctx);
+      case "external_directory": {
+        const file = typeof meta["filepath"] === "string" ? (meta["filepath"] as string) : null;
+        return file ? evaluatePathTool("read", file, ctx) : null;
+      }
+      default:
+        return null;
+    }
+  }
+
   async onAsked(req: PermissionRequest): Promise<void> {
     const command = typeof req.metadata["command"] === "string" ? (req.metadata["command"] as string) : null;
+    const verdict = this.verdictFor(req);
 
-    // opencode asks for folder access before it evaluates bash rules, so a
-    // denied command would otherwise reach the user as "allow access to /?".
-    if (command && isBlocked(command)) {
+    if (verdict?.action === "deny") {
       await this.deps.reply(req.id, "reject", BLOCKED_MESSAGE);
-      this.deps.audit({ sessionID: req.sessionID, kind: "command", subject: command, risk: scoreCommand(command), decision: "blocked", callID: req.tool?.callID });
+      this.deps.audit({ sessionID: req.sessionID, kind: "command", subject: command ?? "", risk: scoreCommand(command ?? ""), decision: "blocked", callID: req.tool?.callID });
+      return;
+    }
+    // A command's folder request only needs a person when private files are
+    // involved; otherwise the command's own approval card is the one that matters.
+    if (req.permission === "external_directory" && command && verdict?.action === "ask" && !/private/.test(verdict.reason)) {
+      await this.deps.reply(req.id, "once");
+      return;
+    }
+    if (verdict?.action === "allow") {
+      await this.deps.reply(req.id, "once");
+      if (req.permission === "bash" && command) {
+        this.deps.audit({ sessionID: req.sessionID, kind: "command", subject: command, risk: scoreCommand(command), decision: "auto-ran", callID: req.tool?.callID });
+      }
       return;
     }
 
-    const approval = this.describe(req);
+    const approval = this.describe(req, verdict);
     const similarKey = approval.canAllowSimilar ? similarKeyFor(req) : null;
     const remembered = similarKey ? this.similar.get(req.sessionID)?.get(similarKey) : undefined;
     if (remembered && !this.deps.alwaysAsk() && LEVEL[approval.risk.level] <= LEVEL[remembered]) {
@@ -117,7 +163,7 @@ export class ApprovalBroker {
     return [...this.pending.values()].map((p) => p.approval);
   }
 
-  private describe(req: PermissionRequest): PendingApproval {
+  private describe(req: PermissionRequest, verdict: Verdict | null): PendingApproval {
     const meta = req.metadata;
     const base = {
       id: req.id,
@@ -153,6 +199,16 @@ export class ApprovalBroker {
         risk = scoreDirectories(dirs, this.deps.home);
         break;
       }
+      case "read":
+      case "list":
+      case "grep":
+      case "glob": {
+        kind = "folder";
+        const target = typeof meta["path"] === "string" ? (meta["path"] as string) : (req.patterns[0] ?? "");
+        extra.filepath = target;
+        risk = { level: "high", reasons: ["Opens private files such as passwords, keys or browser data"] };
+        break;
+      }
       case "webfetch": {
         kind = "web";
         extra.url = String(meta["url"] ?? req.patterns[0] ?? "");
@@ -163,6 +219,9 @@ export class ApprovalBroker {
         kind = "other";
         risk = { level: "medium", reasons: [`Uses the "${req.permission}" tool`] };
     }
+    if (verdict && /private/.test(verdict.reason)) {
+      risk = { level: "high", reasons: ["Opens private files such as passwords, keys or browser data", ...risk.reasons.filter((r) => !/private/.test(r))] };
+    }
     const canAllowSimilar =
       kind !== "other" && risk.level !== "high" && !risk.reasons.some((r) => NO_SIMILAR_REASONS.has(r));
     return { ...base, kind, risk, canAllowSimilar, ...extra };
@@ -172,20 +231,6 @@ export class ApprovalBroker {
     const subject = approval.command ?? approval.filepath ?? approval.url ?? approval.directories?.join(", ") ?? "";
     return { sessionID: approval.sessionID, kind: approval.kind, subject, risk: approval.risk, decision, callID: req.tool?.callID };
   }
-}
-
-/**
- * Deletions the app refuses outright, matched precisely: recursive rm of the
- * whole disk, a top-level system folder, or a whole home folder.
- */
-const HARD_BLOCK: RegExp[] = [
-  /^(sudo\s+)?rm\s+(?=(?:[^|;&]*\s)?(?:-\w*[rR]|--recursive))[^|;&]*\s(\/|\/\*|~|~\/|~\/\*|\$HOME\/?\*?|"\$HOME"\/?\*?|\/home\/?\*?|\/home\/[^/\s]+\/?\*?|\/(etc|usr|boot|bin|sbin|lib|lib64|var|opt|root|srv)\/?\*?)(\s|$)/,
-];
-
-export function isBlocked(command: string): boolean {
-  return simpleCommands(command).some(
-    (part) => DENY_BASH.some((pattern) => match(part, pattern)) || HARD_BLOCK.some((re) => re.test(part)),
-  );
 }
 
 /**
