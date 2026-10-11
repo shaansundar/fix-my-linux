@@ -171,6 +171,10 @@ func TestRejections(t *testing.T) {
 		}, "/zen/v1/messages", `{"model":"claude-haiku-4-5"}`, 402, "trial_ended"},
 		{"model outside the plan", nil, "/zen/v1/messages", `{"model":"claude-sonnet-4-6"}`, 403, "model_not_allowed"},
 		{"unknown endpoint", nil, "/zen/v1/models", `{}`, 404, "not_found"},
+		// The test mux cleans dot-segments itself; either way Zen must never be called.
+		{"dot segments toward other opencode.ai paths", nil, "/zen/v1/../../api/x/messages", `{"model":"claude-haiku-4-5"}`, 404, ""},
+		{"encoded dot segments", nil, "/zen/v1/%2e%2e/%2e%2e/api/messages", `{"model":"claude-haiku-4-5"}`, 404, "not_found"},
+		{"model path with a slash", nil, "/zen/v1/models/a/b:generateContent", `{}`, 404, "not_found"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -179,7 +183,7 @@ func TestRejections(t *testing.T) {
 				tt.mutate(e)
 			}
 			res, body := e.post(t, tt.path, tt.body)
-			if res.StatusCode != tt.status || errorCode(t, body) != tt.code {
+			if res.StatusCode != tt.status || (tt.code != "" && errorCode(t, body) != tt.code) {
 				t.Fatalf("got %d %s", res.StatusCode, body)
 			}
 			if len(e.zen.calls) != 0 {

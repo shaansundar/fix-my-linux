@@ -11,6 +11,8 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"net/url"
+	"regexp"
 	"slices"
 	"strings"
 	"time"
@@ -60,6 +62,8 @@ type Config struct {
 	MaxBody int64
 	// How long an in-flight call may run, including after the client leaves.
 	CallTimeout time.Duration
+	// Clock for usage records and holds; time.Now by default.
+	Now func() time.Time
 }
 
 type Proxy struct {
@@ -83,7 +87,11 @@ func New(cfg Config, ledger Ledger, cat Catalog, resolve Resolver) *Proxy {
 	if cfg.CallTimeout == 0 {
 		cfg.CallTimeout = 15 * time.Minute
 	}
-	return &Proxy{cfg: cfg, ledger: ledger, catalog: cat, resolve: resolve, now: time.Now}
+	now := cfg.Now
+	if now == nil {
+		now = time.Now
+	}
+	return &Proxy{cfg: cfg, ledger: ledger, catalog: cat, resolve: resolve, now: now}
 }
 
 // Request headers worth passing to Zen; everything else (cookies, the
@@ -147,6 +155,13 @@ func maxOutputFrom(body []byte) int64 {
 	return 0
 }
 
+// The only Zen endpoints the proxy forwards to; anything else (including
+// dot-segments that would reach other opencode.ai paths with our key) is refused.
+var endpointPath = regexp.MustCompile(`^/(chat/completions|responses|messages|models/[A-Za-z0-9._-]+:(streamGenerateContent|generateContent))$`)
+
+// Query parameters the adapters use; the rest are dropped.
+var allowedQuery = map[string]bool{"alt": true}
+
 // Roughly 3 bytes of JSON per prompt token; deliberately high for safety.
 func promptEstimate(body []byte) int64 { return int64(len(body))/3 + 1 }
 
@@ -175,7 +190,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	path := strings.TrimPrefix(r.URL.Path, "/zen/v1")
 	format := usage.FormatFor(path)
-	if format == usage.FormatUnknown {
+	if format == usage.FormatUnknown || !endpointPath.MatchString(path) {
 		writeError(w, http.StatusNotFound, "not_found", "", nil)
 		return
 	}
@@ -244,13 +259,18 @@ func (p *Proxy) forward(w http.ResponseWriter, r *http.Request, path string, for
 	ctx, cancel := context.WithTimeout(context.WithoutCancel(r.Context()), p.cfg.CallTimeout)
 	defer cancel()
 
-	query := r.URL.Query()
-	query.Del("key")
+	query := url.Values{}
+	for k, vs := range r.URL.Query() {
+		if allowedQuery[k] {
+			query[k] = vs
+		}
+	}
 	target := strings.TrimRight(p.cfg.Upstream, "/") + path
 	if q := query.Encode(); q != "" {
 		target += "?" + q
 	}
-	up, err := http.NewRequestWithContext(ctx, http.MethodPost, target, bytes.NewReader(body))
+	// The host is fixed by config and path/query were allowlisted in ServeHTTP.
+	up, err := http.NewRequestWithContext(ctx, http.MethodPost, target, bytes.NewReader(body)) // #nosec G704 -- target is cfg.Upstream + an allowlisted endpoint path
 	if err != nil {
 		p.finish(userID, model, reservation, estimate, usage.Usage{}, false, false)
 		writeError(w, http.StatusInternalServerError, "internal", "", nil)
@@ -270,7 +290,7 @@ func (p *Proxy) forward(w http.ResponseWriter, r *http.Request, path string, for
 		up.Header.Set("Authorization", "Bearer "+p.cfg.ZenKey)
 	}
 
-	res, err := p.cfg.Client.Do(up)
+	res, err := p.cfg.Client.Do(up) // #nosec G704 -- see NewRequestWithContext above
 	if err != nil {
 		p.cfg.Logger.Warn("upstream request failed", "err", err)
 		p.finish(userID, model, reservation, estimate, usage.Usage{}, false, false)
