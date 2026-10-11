@@ -1,0 +1,14 @@
+node_modules/
+out/
+dist/
+release/
+coverage/
+*.log
+.DS_Store
+.env
+.env.*
+!.env.example
+apps/desktop/resources/bin/
+server/bin/
+playwright-report/
+test-results/

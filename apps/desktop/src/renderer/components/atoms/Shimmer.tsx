@@ -1,0 +1,20 @@
+/**
+ * Beautiful UI atom, rebuilt from the compiled bundle at https://www.beautifului.dev
+ * (the source is not published). MIT License, Copyright (c) 2026 Shane Levine.
+ */
+import type { ReactNode } from "react";
+
+export function Shimmer({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return (
+    <span
+      className={`inline-block bg-clip-text text-transparent ${className}`}
+      style={{
+        backgroundImage: "linear-gradient(90deg, var(--ink-3) 35%, var(--ink) 50%, var(--ink-3) 65%)",
+        backgroundSize: "200% 100%",
+        animation: "shimmer-text 1.8s linear infinite",
+      }}
+    >
+      {children}
+    </span>
+  );
+}
