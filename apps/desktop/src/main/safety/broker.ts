@@ -3,6 +3,7 @@ import { isAbsolute, join } from "node:path";
 import type { Preview } from "./packages";
 import { evaluateCommand, evaluatePathTool, type PolicyContext, type Verdict } from "./policy";
 import { scoreCommand, scoreDirectories, scoreEdit } from "./risk";
+import { insideHome } from "./secrets";
 
 /** The subset of opencode's permission.asked payload the broker uses. */
 export type PermissionRequest = {
@@ -34,12 +35,20 @@ export type BrokerDeps = {
   alwaysAsk(): boolean;
   /** Dry-runs package commands for the card; omitted in tests that don't need it. */
   previewPackages?: Preview;
+  /**
+   * Flatpak build: opencode's file tools run in the sandbox, which shares
+   * only the home folder with the computer; commands run on the host.
+   */
+  sandboxed?: boolean;
   now?(): number;
 };
 
 /** Actions too consequential to approve in bulk, even at medium risk. */
 const NO_SIMILAR_REASONS = new Set(["Deletes or moves files", "Stops running programs", "Writes to a file"]);
 const LEVEL: Record<RiskLevel, number> = { low: 0, medium: 1, high: 2 };
+
+const SANDBOX_MESSAGE =
+  "From inside the app's sandbox, file tools can only see the home folder, so this path would show the wrong files. Use a shell command instead (for example cat, ls, grep or find; sudo tee to change a system file); commands run on the real computer.";
 
 const BLOCKED_MESSAGE =
   "This command is blocked by Fix My Linux for safety and was not run. Do not try to work around this block; explain to the user what you wanted to do instead.";
@@ -51,38 +60,54 @@ export class ApprovalBroker {
 
   constructor(private readonly deps: BrokerDeps) {}
 
-  /** What the policy says about a request, or null when only a person can decide. */
-  private verdictFor(req: PermissionRequest): Verdict | null {
+  /** The path a file-tool request is about, or null for requests that aren't about one. */
+  private pathOf(req: PermissionRequest): string | null {
     const meta = req.metadata;
-    const ctx = this.deps.policy();
-    const command = typeof meta["command"] === "string" ? (meta["command"] as string) : null;
-    // opencode asks for folder access before it evaluates bash rules, so a
-    // folder request carries the command it is for.
-    if (command && (req.permission === "bash" || req.permission === "external_directory")) {
-      return evaluateCommand(command, ctx);
-    }
+    if (typeof meta["command"] === "string") return null;
     switch (req.permission) {
       case "read":
       case "list": {
         const p = req.patterns[0];
         if (!p) return null;
-        const abs = isAbsolute(p) ? p : join(this.deps.worktree(), p);
-        return evaluatePathTool("read", abs, ctx);
+        return isAbsolute(p) ? p : join(this.deps.worktree(), p);
       }
       case "grep":
       case "glob":
-        return evaluatePathTool(req.permission, typeof meta["path"] === "string" ? (meta["path"] as string) : ctx.cwd, ctx);
-      case "external_directory": {
-        const file = typeof meta["filepath"] === "string" ? (meta["filepath"] as string) : null;
-        return file ? evaluatePathTool("read", file, ctx) : null;
-      }
+        return typeof meta["path"] === "string" ? (meta["path"] as string) : this.deps.policy().cwd;
+      case "edit":
+      case "external_directory":
+        return typeof meta["filepath"] === "string" ? (meta["filepath"] as string) : null;
       default:
         return null;
     }
   }
 
+  /** What the policy says about a request, or null when only a person can decide. */
+  private verdictFor(req: PermissionRequest): Verdict | null {
+    const ctx = this.deps.policy();
+    const command = typeof req.metadata["command"] === "string" ? (req.metadata["command"] as string) : null;
+    // opencode asks for folder access before it evaluates bash rules, so a
+    // folder request carries the command it is for.
+    if (command && (req.permission === "bash" || req.permission === "external_directory")) {
+      return evaluateCommand(command, ctx);
+    }
+    if (req.permission === "edit") return null;
+    const path = this.pathOf(req);
+    if (path === null) return null;
+    const tool = req.permission === "grep" || req.permission === "glob" ? req.permission : "read";
+    return evaluatePathTool(tool, path, ctx);
+  }
+
   async onAsked(req: PermissionRequest): Promise<void> {
     const command = typeof req.metadata["command"] === "string" ? (req.metadata["command"] as string) : null;
+    if (this.deps.sandboxed) {
+      const path = this.pathOf(req);
+      const ctx = this.deps.policy();
+      if (path !== null && !insideHome(path, ctx.cwd, ctx.home)) {
+        await this.deps.reply(req.id, "reject", SANDBOX_MESSAGE);
+        return;
+      }
+    }
     const verdict = this.verdictFor(req);
 
     if (verdict?.action === "deny") {

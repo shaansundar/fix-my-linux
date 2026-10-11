@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Fix My Linux
+GenericName=Computer helper
+Comment=Fix your computer by describing the problem
+Exec=fix-my-linux %U
+Icon=dev.fixmylinux.app
+Terminal=false
+Categories=System;Utility;
+Keywords=help;fix;terminal;troubleshoot;wifi;sound;disk;
+StartupWMClass=fix-my-linux

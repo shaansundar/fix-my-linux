@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>dev.fixmylinux.app</id>
+  <name>Fix My Linux</name>
+  <summary>Fix your computer by describing the problem</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>LicenseRef-proprietary</project_license>
+  <developer id="app.fixmylinux">
+    <name>Fix My Linux</name>
+  </developer>
+  <description>
+    <p>
+      Describe a problem with your Linux computer in plain words, like "my
+      Wi-Fi keeps dropping" or "my disk is full". An AI assistant runs the
+      right terminal commands for you and explains each step in plain
+      language.
+    </p>
+    <p>
+      It looks around freely, but it asks before changing anything, and
+      it shows exactly what will run. Commands that need your password ask
+      for it inside the app, naming the exact command.
+    </p>
+  </description>
+  <launchable type="desktop-id">dev.fixmylinux.app.desktop</launchable>
+  <url type="homepage">https://fixmylinux.app</url>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="0.1.0" date="2026-10-11"/>
+  </releases>
+</component>

@@ -1,0 +1,55 @@
+# Flatpak build of Fix My Linux, packaging electron-builder's unpacked app.
+# Build with ./build.sh (needs flatpak-builder on Linux).
+#
+# The app's job is to run commands on the computer, so this build is not a
+# real sandbox: org.freedesktop.Flatpak lets the shell wrapper run each
+# command on the host with flatpak-spawn --host. That rules out Flathub; it
+# ships from our own repository instead.
+app-id: dev.fixmylinux.app
+runtime: org.freedesktop.Platform
+runtime-version: "25.08"
+sdk: org.freedesktop.Sdk
+base: org.electronjs.Electron2.BaseApp
+base-version: "25.08"
+command: fix-my-linux
+separate-locales: false
+finish-args:
+  - --share=ipc
+  - --share=network
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --device=dri
+  # opencode works in the home folder (its file tools and the chat's cwd).
+  - --filesystem=home
+  # Commands, sudo, and the Home screen's checks run on the host.
+  - --talk-name=org.freedesktop.Flatpak
+  # The sign-in token is kept in the system keyring (Electron safeStorage).
+  - --talk-name=org.freedesktop.secrets
+modules:
+  - name: fix-my-linux
+    buildsystem: simple
+    sources:
+      - type: dir
+        path: ../release/linux-unpacked
+        dest: app
+        only-arches: [x86_64]
+      - type: dir
+        path: ../release/linux-arm64-unpacked
+        dest: app
+        only-arches: [aarch64]
+      - type: file
+        path: ../build/icon.png
+      - type: file
+        path: dev.fixmylinux.app.desktop
+      - type: file
+        path: dev.fixmylinux.app.metainfo.xml
+      - type: file
+        path: fix-my-linux.sh
+    build-commands:
+      # zypak provides Chromium's sandbox inside Flatpak; the SUID helper is unused.
+      - rm -f app/chrome-sandbox
+      - cp -a app /app/fix-my-linux
+      - install -Dm755 fix-my-linux.sh /app/bin/fix-my-linux
+      - install -Dm644 icon.png /app/share/icons/hicolor/512x512/apps/dev.fixmylinux.app.png
+      - install -Dm644 dev.fixmylinux.app.desktop /app/share/applications/dev.fixmylinux.app.desktop
+      - install -Dm644 dev.fixmylinux.app.metainfo.xml /app/share/metainfo/dev.fixmylinux.app.metainfo.xml

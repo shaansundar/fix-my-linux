@@ -29,24 +29,22 @@ while IFS= read -r name; do
 done < <(compgen -e)
 unset FML_SHELL_DIR FML_FLATPAK FML_SHIM_DIR FML_ASKPASS_BIN FML_ASKPASS_SOCKET SUDO_ASKPASS
 
+if [ "$flatpak" = "1" ]; then
+  # The host command starts from the host session's own environment, so only
+  # our additions are passed: the sandbox's PATH and XDG dirs point at /app
+  # and ~/.var/app, which mean nothing (or the wrong thing) on the host. The
+  # shim (in the runtime dir, which the host shares) goes in front of the
+  # host's PATH there.
+  exec flatpak-spawn --host --watch-bus \
+    --env=DEBIAN_FRONTEND=noninteractive --env=SYSTEMD_PAGER= --env=PAGER=cat --env=GIT_PAGER=cat \
+    /bin/bash -c 'PATH="$1:$PATH"; shift; exec /bin/bash "$@"' fml-host "$shim_dir" "$@"
+fi
+
 export PATH="${shim_dir}:${PATH}"
 # Non-interactive defaults so commands never stop to wait for a keypress.
 export DEBIAN_FRONTEND=noninteractive
 export SYSTEMD_PAGER=
 export PAGER=cat
 export GIT_PAGER=cat
-
-if [ "$flatpak" = "1" ]; then
-  env_args=()
-  while IFS= read -r name; do
-    case "$name" in
-      PATH | HOME | USER | LANG | LC_* | TERM | DISPLAY | WAYLAND_DISPLAY | XDG_* | DBUS_SESSION_BUS_ADDRESS | \
-        DEBIAN_FRONTEND | SYSTEMD_PAGER | PAGER | GIT_PAGER)
-        env_args+=("--env=${name}=${!name}")
-        ;;
-    esac
-  done < <(compgen -e)
-  exec flatpak-spawn --host --watch-bus "${env_args[@]}" /bin/bash "$@"
-fi
 
 exec /bin/bash "$@"

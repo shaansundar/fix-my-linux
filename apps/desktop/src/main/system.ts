@@ -3,11 +3,15 @@ import { access, readFile, statfs } from "node:fs/promises";
 import { cpus, freemem, hostname, release, totalmem, uptime } from "node:os";
 import { promisify } from "node:util";
 import type { HealthItem, SystemFact, SystemSample } from "../shared/system";
+import { hostCommand } from "./host";
 
 /**
  * What the Home screen shows: facts about the computer, live usage samples,
  * and a quick read-only health check. All of it is read locally by the app
- * (no AI involved, nothing sent anywhere) using fixed commands.
+ * (no AI involved, nothing sent anywhere) using fixed commands. In the
+ * Flatpak build, anything about the installed system (os-release, package
+ * managers, services) is read on the host; the kernel, /proc and the home
+ * folder are shared with the sandbox.
  */
 
 const run = promisify(execFile);
@@ -79,22 +83,38 @@ function gib(bytes: number): string {
   return `${(bytes / 1024 ** 3).toFixed(bytes > 100 * 1024 ** 3 ? 0 : 1)} GB`;
 }
 
-export async function facts(home: string): Promise<SystemFact[]> {
-  const os = parseOsRelease((await text("/etc/os-release")) ?? "");
+const MANAGERS: Array<[name: string, path: string]> = [
+  ["apt", "/usr/bin/apt"],
+  ["dnf", "/usr/bin/dnf"],
+  ["pacman", "/usr/bin/pacman"],
+  ["zypper", "/usr/bin/zypper"],
+  ["Flatpak", "/usr/bin/flatpak"],
+  ["Snap", "/usr/bin/snap"],
+];
+
+async function osRelease(flatpak: boolean): Promise<string> {
+  if (!flatpak) return (await text("/etc/os-release")) ?? "";
+  // Flatpak exposes the host's copy; older versions don't, so ask the host.
+  return (await text("/run/host/os-release")) ?? (await lines("cat", ["/etc/os-release"], true)).join("\n");
+}
+
+async function installedManagers(flatpak: boolean): Promise<string[]> {
+  if (!flatpak) {
+    const found = await Promise.all(MANAGERS.map(async ([name, path]) => ((await exists(path)) ? name : null)));
+    return found.filter((n): n is string => n !== null);
+  }
+  // One host round trip: a fixed script, with the paths passed as arguments.
+  const present = new Set(
+    await lines("/bin/sh", ["-c", 'for p in "$@"; do [ -x "$p" ] && echo "$p"; done; exit 0', "fml", ...MANAGERS.map(([, p]) => p)], true),
+  );
+  return MANAGERS.filter(([, p]) => present.has(p)).map(([name]) => name);
+}
+
+export async function facts(home: string, flatpak = false): Promise<SystemFact[]> {
+  const os = parseOsRelease(await osRelease(flatpak));
   const cpu = cpus();
   const disk = await statfs(home).catch(() => null);
-  const managers = (
-    await Promise.all(
-      [
-        ["apt", "/usr/bin/apt"],
-        ["dnf", "/usr/bin/dnf"],
-        ["pacman", "/usr/bin/pacman"],
-        ["zypper", "/usr/bin/zypper"],
-        ["Flatpak", "/usr/bin/flatpak"],
-        ["Snap", "/usr/bin/snap"],
-      ].map(async ([name, path]) => ((await exists(path!)) ? name! : null)),
-    )
-  ).filter(Boolean);
+  const managers = await installedManagers(flatpak);
   const out: SystemFact[] = [
     {
       key: "system",
@@ -170,9 +190,10 @@ export class Sampler {
   }
 }
 
-async function lines(cmd: string, args: string[]): Promise<string[]> {
+async function lines(cmd: string, args: string[], flatpak: boolean): Promise<string[]> {
+  const c = hostCommand(flatpak, cmd, args);
   try {
-    const { stdout } = await run(cmd, args, { timeout: 8000, maxBuffer: 2 * 1024 * 1024 });
+    const { stdout } = await run(c.file, c.args, { timeout: 8000, maxBuffer: 2 * 1024 * 1024 });
     return stdout.split("\n").filter((l) => l.trim());
   } catch {
     return [];
@@ -180,7 +201,7 @@ async function lines(cmd: string, args: string[]): Promise<string[]> {
 }
 
 /** A quick read-only health check; each finding comes with a plain request for the assistant. */
-export async function health(home: string): Promise<HealthItem[]> {
+export async function health(home: string, flatpak = false): Promise<HealthItem[]> {
   const items: HealthItem[] = [];
 
   const disk = await statfs(home).catch(() => null);
@@ -209,7 +230,7 @@ export async function health(home: string): Promise<HealthItem[]> {
   }
 
   if (process.platform === "linux") {
-    const failed = await lines("systemctl", ["--failed", "--no-legend", "--plain", "--no-pager"]);
+    const failed = await lines("systemctl", ["--failed", "--no-legend", "--plain", "--no-pager"], flatpak);
     if (failed.length) {
       const names = failed.map((l) => l.split(/\s+/)[0]).filter(Boolean);
       items.push({

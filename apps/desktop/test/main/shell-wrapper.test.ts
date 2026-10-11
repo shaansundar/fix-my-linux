@@ -1,4 +1,6 @@
 import { execFileSync } from "node:child_process";
+import { chmodSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -62,6 +64,72 @@ describe("shell wrapper", () => {
       expect.unreachable();
     } catch (err) {
       expect((err as { status?: number }).status).toBe(3);
+    }
+  });
+});
+
+describe("shell wrapper in the Flatpak build", () => {
+  // Stands in for flatpak-spawn: records its arguments, then runs the command
+  // the way the host would, in a clean session environment plus the --env pairs.
+  const dir = mkdtempSync(join(tmpdir(), "fml-spawn-"));
+  const log = join(dir, "args");
+  writeFileSync(
+    join(dir, "flatpak-spawn"),
+    `#!/bin/bash
+printf '%s\\n' "$@" > "$TEST_SPAWN_LOG"
+envs=()
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --host | --watch-bus) shift ;;
+    --env=*) envs+=("\${1#--env=}"); shift ;;
+    *) break ;;
+  esac
+done
+exec env -i HOME=/home/ana PATH=/usr/local/bin:/usr/bin:/bin "\${envs[@]}" "$@"
+`,
+  );
+  chmodSync(join(dir, "flatpak-spawn"), 0o755);
+
+  const SANDBOX_ENV = {
+    ...APP_ENV,
+    PATH: `${dir}:/app/bin:/usr/bin:/bin`,
+    FML_FLATPAK: "1",
+    FML_REAL_XDG_CONFIG_HOME: "/home/ana/.var/app/dev.fixmylinux.app/config",
+    XDG_DATA_DIRS: "/app/share:/usr/share",
+    TEST_SPAWN_LOG: log,
+  };
+  const host = (command: string) => run(command, SANDBOX_ENV);
+  const args = () => readFileSync(log, "utf8").split("\n");
+
+  it("runs the command on the host and stops it if the app goes away", () => {
+    expect(host("echo hi").trim()).toBe("hi");
+    expect(args().slice(0, 2)).toEqual(["--host", "--watch-bus"]);
+  });
+
+  it("puts the sudo shim in front of the host's own PATH", () => {
+    expect(host("echo $PATH").trim()).toBe("/run/user/1000/fix-my-linux/shim:/usr/local/bin:/usr/bin:/bin");
+  });
+
+  it("never hands sandbox paths or app secrets to the host", () => {
+    const env = host("env");
+    expect(env).not.toContain("/app/");
+    expect(env).not.toContain(".var/app");
+    expect(env).not.toContain("secret-password");
+    const passed = args().filter((a) => a.startsWith("--env="));
+    expect(passed.some((a) => /^--env=(PATH|HOME|XDG_[A-Z_]+)=/.test(a))).toBe(false);
+    expect(args().join("\n")).not.toContain("secret-password");
+  });
+
+  it("keeps host commands non-interactive", () => {
+    expect(host("echo $DEBIAN_FRONTEND $PAGER").trim()).toBe("noninteractive cat");
+  });
+
+  it("passes the host command's exit code through", () => {
+    try {
+      host("exit 4");
+      expect.unreachable();
+    } catch (err) {
+      expect((err as { status?: number }).status).toBe(4);
     }
   });
 });

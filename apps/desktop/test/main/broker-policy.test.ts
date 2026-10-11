@@ -88,3 +88,62 @@ describe("broker with the command policy", () => {
     expect(audits[0]!.decision).toBe("blocked");
   });
 });
+
+describe("broker in the Flatpak build", () => {
+  // File tools run inside the sandbox: outside home they'd see the runtime's
+  // files, not the computer's. Commands run on the host and are unaffected.
+  let replies: Array<[string, string, string | undefined]>;
+  let shown: PendingApproval[];
+  let broker: ApprovalBroker;
+
+  beforeEach(() => {
+    replies = [];
+    shown = [];
+    broker = new ApprovalBroker({
+      reply: async (id, reply, message) => void replies.push([id, reply, message]),
+      explanationFor: () => null,
+      show: (a) => shown.push(a),
+      hide: () => undefined,
+      audit: () => undefined,
+      home,
+      policy: () => ({ home, cwd: home }),
+      worktree: () => "/",
+      alwaysAsk: () => false,
+      sandboxed: true,
+    });
+  });
+
+  const ask = (permission: string, patterns: string[], metadata: Record<string, unknown>): PermissionRequest => ({
+    id: `p${replies.length + shown.length}`,
+    sessionID: "s1",
+    permission,
+    patterns,
+    always: [],
+    metadata,
+  });
+
+  it("points file tools outside home to a shell command instead", async () => {
+    await broker.onAsked(ask("external_directory", ["/etc/*"], { filepath: "/etc/fstab", parentDir: "/etc" }));
+    await broker.onAsked(ask("read", ["etc/fstab"], {}));
+    await broker.onAsked(ask("list", ["var/log"], {}));
+    await broker.onAsked(ask("grep", ["error"], { pattern: "error", path: "/var/log" }));
+    await broker.onAsked(ask("glob", ["*.conf"], { pattern: "*.conf", path: "/etc" }));
+    await broker.onAsked(ask("edit", ["etc/hosts"], { filepath: "/etc/hosts", diff: "" }));
+    expect(replies.map(([, r]) => r)).toEqual(["reject", "reject", "reject", "reject", "reject", "reject"]);
+    expect(replies.every(([, , m]) => /shell command/.test(m ?? ""))).toBe(true);
+    expect(shown).toEqual([]);
+  });
+
+  it("handles files in home as usual", async () => {
+    await broker.onAsked(ask("read", [`${home.slice(1)}/Documents/a.txt`], {}));
+    await broker.onAsked(ask("edit", [`${home.slice(1)}/Documents/a.txt`], { filepath: join(home, "Documents/a.txt"), diff: "" }));
+    expect(replies).toEqual([["p0", "once", undefined]]);
+    expect(shown.map((a) => a.kind)).toEqual(["edit"]);
+  });
+
+  it("leaves commands alone, since they run on the host", async () => {
+    await broker.onAsked(ask("bash", ["cat /etc/fstab"], { command: "cat /etc/fstab" }));
+    await broker.onAsked(ask("external_directory", ["/etc/*"], { command: "cat /etc/fstab", directories: ["/etc"] }));
+    expect(replies.map(([, r]) => r)).toEqual(["once", "once"]);
+  });
+});

@@ -205,7 +205,7 @@ app.whenReady().then(async () => {
   registerIpc(() => win, () => engine, {
     restart: startEngine,
     state: () => engineState,
-    system: { facts: () => facts(userHome()), health: () => health(userHome()), history: () => samples },
+    system: { facts: () => facts(userHome(), isFlatpak()), health: () => health(userHome(), isFlatpak()), history: () => samples },
     settings: {
       get: () => settings!.get(),
       update: async (patch) => {

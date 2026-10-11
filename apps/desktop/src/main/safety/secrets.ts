@@ -92,6 +92,11 @@ function under(path: string, dir: string): boolean {
   return path === dir || path.startsWith(dir.endsWith(sep) ? dir : dir + sep);
 }
 
+/** Is this path (as a tool would resolve it) the home folder or inside it? */
+export function insideHome(raw: string, cwd: string, home: string): boolean {
+  return under(resolvePath(raw, cwd, home), realish(home));
+}
+
 function secretDirs(ctx: SecretContext): string[] {
   const home = realish(ctx.home);
   const dirs = HOME_SECRET_DIRS.map((d) => join(home, d));

@@ -2,6 +2,7 @@ import { execFile } from "node:child_process";
 import { basename } from "node:path";
 import { promisify } from "node:util";
 import type { PackageChange } from "../../shared/approvals";
+import { hostCommand } from "../host";
 import { stripElevation } from "./risk";
 import { parse } from "./shell";
 
@@ -84,18 +85,17 @@ const run = promisify(execFile);
 
 export type Preview = (command: string) => Promise<PackageChange[] | null>;
 
-/** Runs the dry run with a fixed program and argument list (no shell). */
-export const previewPackages: Preview = async (command) => {
-  const args = aptSimulation(command);
-  if (!args) return null;
-  try {
-    const { stdout } = await run("apt-get", args, {
-      timeout: 20_000,
-      maxBuffer: 4 * 1024 * 1024,
-      env: { ...process.env, LANG: "C", LC_ALL: "C", DEBIAN_FRONTEND: "noninteractive" },
-    });
-    return parseAptSimulation(stdout);
-  } catch {
-    return null;
-  }
-};
+/** Runs the dry run with a fixed program and argument list (no shell), on the host in Flatpak. */
+export function packagePreview(flatpak: boolean): Preview {
+  return async (command) => {
+    const args = aptSimulation(command);
+    if (!args) return null;
+    const c = hostCommand(flatpak, "apt-get", args, { LANG: "C", LC_ALL: "C", DEBIAN_FRONTEND: "noninteractive" });
+    try {
+      const { stdout } = await run(c.file, c.args, { timeout: 20_000, maxBuffer: 4 * 1024 * 1024, env: { ...process.env, ...c.env } });
+      return parseAptSimulation(stdout);
+    } catch {
+      return null;
+    }
+  };
+}
