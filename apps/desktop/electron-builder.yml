@@ -1,0 +1,96 @@
+appId: dev.fixmylinux.app
+productName: Fix My Linux
+executableName: fix-my-linux
+copyright: Copyright © 2026 Fix My Linux
+directories:
+  output: release
+  buildResources: build
+
+# Everything the renderer and main process need is bundled by electron-vite.
+files:
+  - out/**
+  - package.json
+  - "!**/*.map"
+
+extraResources:
+  - from: resources/prompts
+    to: resources/prompts
+  - from: resources/shell
+    to: resources/shell
+  # opencode and fml-askpass for this architecture. x64 also ships the
+  # baseline opencode for CPUs without AVX2 when it differs from the regular
+  # build (the fetch script drops it when identical). Fetched/built before
+  # packaging.
+  - from: resources/bin
+    to: resources/bin
+    filter:
+      - "linux-${arch}/**"
+      - "linux-${arch}-baseline/**"
+  - from: ../../THIRD_PARTY_NOTICES.md
+    to: THIRD_PARTY_NOTICES.md
+
+# Hardened Electron: no running as plain Node, no NODE_OPTIONS or inspector
+# flags, and the app only loads from its own integrity-checked asar.
+electronFuses:
+  runAsNode: false
+  enableCookieEncryption: true
+  enableNodeOptionsEnvironmentVariable: false
+  enableNodeCliInspectArguments: false
+  enableEmbeddedAsarIntegrityValidation: true
+  onlyLoadAppFromAsar: true
+
+linux:
+  target:
+    - AppImage
+    - deb
+    - rpm
+  category: System
+  icon: build/icon.png
+  maintainer: Fix My Linux <hello@fixmylinux.app>
+  vendor: Fix My Linux
+  synopsis: Fix your computer by describing the problem
+  description: >-
+    Describe a problem with your Linux computer in plain words. An AI
+    assistant runs the right terminal commands for you, explains each step,
+    and asks before changing anything.
+  desktop:
+    entry:
+      Name: Fix My Linux
+      GenericName: Computer helper
+      Comment: Fix your computer by describing the problem
+      Keywords: help;fix;terminal;troubleshoot;wifi;sound;disk;
+      StartupWMClass: fix-my-linux
+
+deb:
+  packageName: fix-my-linux
+  artifactName: fix-my-linux_${version}_${arch}.${ext}
+  # libsecret lets the app keep your sign-in in the system keyring.
+  depends:
+    - libgtk-3-0
+    - libnotify4
+    - libnss3
+    - libxss1
+    - libxtst6
+    - xdg-utils
+    - libatspi2.0-0
+    - libuuid1
+    - libsecret-1-0
+  recommends:
+    - sudo
+
+rpm:
+  packageName: fix-my-linux
+  artifactName: fix-my-linux-${version}.${arch}.${ext}
+  depends:
+    - gtk3
+    - libnotify
+    - nss
+    - libXScrnSaver
+    - libXtst
+    - xdg-utils
+    - at-spi2-core
+    - libuuid
+    - libsecret
+
+appImage:
+  artifactName: fix-my-linux-${version}-${arch}.AppImage

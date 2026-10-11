@@ -9,7 +9,7 @@
  */
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { chmod, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { chmod, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
@@ -68,11 +68,29 @@ async function fetchVariant(variant: string): Promise<void> {
   }
 }
 
+async function sha256(path: string): Promise<string> {
+  return createHash("sha256").update(await readFile(path)).digest("hex");
+}
+
+/**
+ * Some releases publish the same binary as both x64 and baseline. Keeping
+ * one copy saves ~180 MB per x64 package; the app falls back to linux-x64
+ * when the baseline directory is missing.
+ */
+async function dropDuplicateBaseline(): Promise<void> {
+  const regular = join(OUT_DIR, "linux-x64", "opencode");
+  const baseline = join(OUT_DIR, "linux-x64-baseline", "opencode");
+  if ((await sha256(regular)) !== (await sha256(baseline))) return;
+  await rm(join(OUT_DIR, "linux-x64-baseline"), { recursive: true, force: true });
+  console.log("linux-x64-baseline is identical to linux-x64; keeping one copy");
+}
+
 async function main(): Promise<void> {
   const variants = process.argv.includes("--host")
     ? [hostVariant()]
     : (arg("--variants")?.split(",") ?? RELEASE_VARIANTS);
   for (const v of variants) await fetchVariant(v);
+  if (variants.includes("linux-x64") && variants.includes("linux-x64-baseline")) await dropDuplicateBaseline();
 }
 
 main().catch((err: unknown) => {

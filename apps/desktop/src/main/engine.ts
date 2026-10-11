@@ -6,7 +6,7 @@ import type { ApprovalDecision, AuditEntry, PendingApproval } from "../shared/ap
 import type { BlockedNotice, EngineState, ModelOption, PasswordRequest, SessionSummary } from "../shared/ipc";
 import { emptySession, emptyState, explanationFor, hydrate, reduce, type ChatState, type OpencodeEvent, type SessionView } from "../shared/session";
 import { fetchBackendCatalog, fetchPublicCatalog, freePlan, isFree, writeCatalog, type CatalogResponse } from "./catalog";
-import { binaryPath, pickVariant } from "./opencode/binary";
+import { askpassPath, binaryPath, pickVariant } from "./opencode/binary";
 import { AGENT_ID, buildConfig, PROVIDER_ID } from "./opencode/config";
 import { buildOpencodeEnv } from "./opencode/env";
 import { sessionDenyRules } from "./opencode/permissions";
@@ -132,7 +132,7 @@ export class Engine {
       const runtime = dirname(this.deps.askpassSocket);
       const shimDir = join(runtime, "shim");
       await mkdir(shimDir, { recursive: true, mode: 0o700 });
-      let askpassBin = join(this.deps.resourcesDir, "bin", variant, "fml-askpass");
+      let askpassBin = askpassPath(this.deps.resourcesDir, variant);
       if (this.deps.flatpak) {
         const hostVisible = join(runtime, "fml-askpass");
         await copyFile(askpassBin, hostVisible);
